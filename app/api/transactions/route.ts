@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
 import { logToRedis } from '@/lib/redis'
+import { notifyHighExpense } from '@/lib/notifications'
 import { z } from 'zod'
 
 const transactionSchema = z.object({
@@ -13,6 +14,8 @@ const transactionSchema = z.object({
   userId: z.string().uuid('Usuário inválido').optional(),
   isScheduled: z.boolean().optional(),
   scheduledDate: z.string().optional(),
+  planId: z.string().uuid('Plano inválido').optional(),
+  installmentId: z.string().uuid('Parcelamento inválido').optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -133,6 +136,42 @@ export async function POST(request: NextRequest) {
         const transactionDate = data.date ? new Date(data.date) : new Date()
         const isScheduled = data.isScheduled && data.scheduledDate && new Date(data.scheduledDate) > new Date()
         
+        // Verificar se planId é válido (se fornecido)
+        if (data.planId) {
+          const plan = await prisma.plan.findFirst({
+            where: {
+              id: data.planId,
+              userId: targetUserId,
+              status: 'ACTIVE',
+            },
+          })
+          
+          if (!plan) {
+            return NextResponse.json(
+              { error: 'Plano não encontrado ou inativo' },
+              { status: 404 }
+            )
+          }
+        }
+
+        // Verificar se installmentId é válido (se fornecido)
+        if (data.installmentId) {
+          const installment = await prisma.installment.findFirst({
+            where: {
+              id: data.installmentId,
+              userId: targetUserId,
+              status: 'ACTIVE',
+            },
+          })
+          
+          if (!installment) {
+            return NextResponse.json(
+              { error: 'Parcelamento não encontrado ou inativo' },
+              { status: 404 }
+            )
+          }
+        }
+        
         const transaction = await prisma.transaction.create({
           data: {
             description: data.description,
@@ -143,26 +182,82 @@ export async function POST(request: NextRequest) {
             date: transactionDate,
             isScheduled: isScheduled || false,
             scheduledDate: isScheduled && data.scheduledDate ? new Date(data.scheduledDate) : null,
+            planId: data.planId || null,
+            installmentId: data.installmentId || null,
+            isInstallment: !!data.installmentId,
           },
-      include: {
-        category: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+          include: {
+            category: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            plan: true,
+            installment: true,
           },
-        },
-      },
-    })
+        })
 
-    await logToRedis('info', 'Transação criada', {
-      userId: user.id,
-      transactionId: transaction.id,
-      type: transaction.type,
-    })
+        // Atualizar Plan.currentAmount se transação estiver vinculada a um plano
+        if (data.planId && transaction.type === 'EXPENSE') {
+          const plan = await prisma.plan.findUnique({
+            where: { id: data.planId },
+          })
 
-    return NextResponse.json(transaction, { status: 201 })
+          if (plan) {
+            const newCurrentAmount = plan.currentAmount + transaction.amount
+            const isCompleted = newCurrentAmount >= plan.targetAmount
+
+            await prisma.plan.update({
+              where: { id: data.planId },
+              data: {
+                currentAmount: newCurrentAmount,
+                status: isCompleted ? 'COMPLETED' : plan.status,
+              },
+            })
+
+            await logToRedis('info', 'Plano atualizado automaticamente', {
+              planId: data.planId,
+              newCurrentAmount,
+              isCompleted,
+            })
+          }
+        }
+
+        // Verificar gasto acima da média e criar notificação
+        if (transaction.type === 'EXPENSE') {
+          try {
+            const categoryTransactions = await prisma.transaction.findMany({
+              where: {
+                categoryId: transaction.categoryId,
+                userId: targetUserId,
+                type: 'EXPENSE',
+                date: {
+                  gte: new Date(new Date().setMonth(new Date().getMonth() - 3)), // Últimos 3 meses
+                },
+              },
+            })
+
+            if (categoryTransactions.length > 0) {
+              const average = categoryTransactions.reduce((sum, t) => sum + t.amount, 0) / categoryTransactions.length
+              await notifyHighExpense(targetUserId, transaction.category.name, transaction.amount, average)
+            }
+          } catch (error) {
+            // Não falhar a criação da transação se a notificação falhar
+            console.error('Erro ao verificar gasto acima da média:', error)
+          }
+        }
+
+        await logToRedis('info', 'Transação criada', {
+          userId: user.id,
+          transactionId: transaction.id,
+          type: transaction.type,
+          planId: data.planId || null,
+        })
+
+        return NextResponse.json(transaction, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       await logToRedis('warn', 'Validação falhou ao criar transação', {

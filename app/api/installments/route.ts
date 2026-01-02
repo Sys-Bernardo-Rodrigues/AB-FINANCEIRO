@@ -87,6 +87,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verificar se a categoria existe e pertence ao usuário
+    const category = await prisma.category.findFirst({
+      where: {
+        id: data.categoryId,
+        userId: targetUserId,
+        type: 'EXPENSE', // Parcelamentos são sempre despesas
+      },
+    })
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Categoria não encontrada ou não é do tipo despesa' },
+        { status: 404 }
+      )
+    }
+
     const installmentAmount = data.totalAmount / data.installments
 
     // Criar o parcelamento

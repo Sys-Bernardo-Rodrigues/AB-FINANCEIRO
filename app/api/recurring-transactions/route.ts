@@ -114,6 +114,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const data = recurringTransactionSchema.parse(body)
 
+    // Validação de datas
+    if (data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
+      return NextResponse.json(
+        { error: 'A data final deve ser posterior à data inicial' },
+        { status: 400 }
+      )
+    }
+
     // Usar o userId fornecido ou o do usuário autenticado
     const targetUserId = data.userId || user.id
 
@@ -125,6 +133,21 @@ export async function POST(request: NextRequest) {
     if (!targetUser) {
       return NextResponse.json(
         { error: 'Usuário não encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Verificar se a categoria existe e pertence ao usuário
+    const category = await prisma.category.findFirst({
+      where: {
+        id: data.categoryId,
+        userId: targetUserId,
+      },
+    })
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Categoria não encontrada' },
         { status: 404 }
       )
     }

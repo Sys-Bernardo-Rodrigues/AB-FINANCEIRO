@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
 import { logToRedis } from '@/lib/redis'
-import { notifyLowBalance, notifyHighExpense } from '@/lib/notifications'
+import { notifyLowBalance } from '@/lib/notifications'
 
 export async function GET() {
   try {
@@ -30,6 +30,29 @@ export async function GET() {
       .reduce((sum, t) => sum + t.amount, 0)
 
     const balance = totalIncome - totalExpenses
+
+    // Verificar saldo negativo e criar notificação (apenas se não existir uma recente)
+    if (balance < 0) {
+      try {
+        const recentNotification = await prisma.notification.findFirst({
+          where: {
+            userId: user.id,
+            type: 'DANGER',
+            title: 'Saldo Baixo',
+            createdAt: {
+              gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Últimas 24 horas
+            },
+          },
+        })
+
+        if (!recentNotification) {
+          await notifyLowBalance(user.id, balance)
+        }
+      } catch (error) {
+        // Não falhar o dashboard se a notificação falhar
+        console.error('Erro ao criar notificação de saldo negativo:', error)
+      }
+    }
 
     // Métricas avançadas
     const incomeTransactions = transactions.filter((t) => t.type === 'INCOME')

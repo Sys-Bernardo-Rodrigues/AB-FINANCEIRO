@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
 import { logToRedis } from '@/lib/redis'
-import { notifyUpcomingRecurring } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -23,6 +22,9 @@ export async function POST(
         userId: user.id,
         isScheduled: true,
       },
+      include: {
+        plan: true,
+      },
     })
 
     if (!transaction) {
@@ -42,12 +44,46 @@ export async function POST(
       },
       include: {
         category: true,
+        plan: true,
       },
     })
+
+    // Se transação estava vinculada a um plano, atualizar Plan.currentAmount
+    if (transaction.planId && transaction.type === 'EXPENSE') {
+      const plan = transaction.plan
+      if (plan) {
+        // Recalcular currentAmount baseado em todas as transações do plano
+        const planTransactions = await prisma.transaction.findMany({
+          where: {
+            planId: plan.id,
+            type: 'EXPENSE',
+            isScheduled: false, // Apenas transações confirmadas
+          },
+        })
+
+        const newCurrentAmount = planTransactions.reduce((sum, t) => sum + t.amount, 0)
+        const isCompleted = newCurrentAmount >= plan.targetAmount
+
+        await prisma.plan.update({
+          where: { id: plan.id },
+          data: {
+            currentAmount: newCurrentAmount,
+            status: isCompleted ? 'COMPLETED' : plan.status,
+          },
+        })
+
+        await logToRedis('info', 'Plano atualizado após confirmar transação agendada', {
+          planId: plan.id,
+          newCurrentAmount,
+          previousAmount: plan.currentAmount,
+        })
+      }
+    }
 
     await logToRedis('info', 'Transação agendada confirmada', {
       userId: user.id,
       transactionId: params.id,
+      hadPlan: !!transaction.planId,
     })
 
     return NextResponse.json(confirmed)
