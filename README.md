@@ -28,6 +28,33 @@ Sistema de controle financeiro pessoal desenvolvido com Next.js, TypeScript, Pos
 
 ## 🛠️ Instalação
 
+### Opção 1: Instalador Automático (Windows) ⚡
+
+Para Windows, use o instalador Python que automatiza todo o processo:
+
+1. **Gerar executáveis** (opcional):
+   ```bash
+   python installer/build_exe.py
+   ```
+   Ou use o script batch:
+   ```bash
+   installer\build.bat
+   ```
+
+2. **Executar instalador**:
+   - Execute `AB_Financeiro_Instalador.exe` (se gerado)
+   - Ou execute `python installer/installer.py`
+   - Ou use: `installer\run_installer.bat`
+
+3. **Iniciar sistema**:
+   - Execute `AB_Financeiro_Launcher.exe` (se gerado)
+   - Ou execute `python installer/launcher.py`
+   - Ou use: `installer\run_launcher.bat`
+
+📖 **Documentação completa**: Veja `installer/README.md`
+
+### Opção 2: Instalação Manual
+
 ### Pré-requisitos
 
 - Node.js 20+
