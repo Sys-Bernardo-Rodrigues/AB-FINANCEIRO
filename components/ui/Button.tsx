@@ -24,21 +24,21 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed hover-lift focus:outline-none focus:ring-2 focus:ring-offset-2'
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 touch-feedback disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95'
 
   const variants = {
-    primary: 'gradient-primary text-white shadow-lg hover:shadow-xl focus:ring-primary-500',
+    primary: 'bg-primary-600 text-white shadow-md hover:shadow-lg hover:bg-primary-700 focus:ring-primary-500',
     secondary: 'bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500',
-    success: 'gradient-success text-white shadow-lg hover:shadow-xl focus:ring-success-500',
-    danger: 'gradient-danger text-white shadow-lg hover:shadow-xl focus:ring-danger-500',
-    warning: 'gradient-warning text-white shadow-lg hover:shadow-xl focus:ring-warning-500',
+    success: 'bg-success-600 text-white shadow-md hover:shadow-lg hover:bg-success-700 focus:ring-success-500',
+    danger: 'bg-danger-600 text-white shadow-md hover:shadow-lg hover:bg-danger-700 focus:ring-danger-500',
+    warning: 'bg-warning-500 text-white shadow-md hover:shadow-lg hover:bg-warning-600 focus:ring-warning-500',
     ghost: 'text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500',
   }
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-5 py-3 text-base',
-    lg: 'px-6 py-4 text-lg',
+    sm: 'px-4 py-2.5 text-sm min-h-[40px]',
+    md: 'px-6 py-3.5 text-base min-h-[48px]',
+    lg: 'px-8 py-4 text-lg min-h-[56px]',
   }
 
   return (
@@ -62,4 +62,3 @@ export default function Button({
     </button>
   )
 }
-

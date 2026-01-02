@@ -5,12 +5,14 @@ import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import AuthGuard from '@/components/AuthGuard'
-import { CreditCard, Target, Receipt, Repeat, PiggyBank } from 'lucide-react'
+import { CreditCard, Target, Receipt, Repeat, PiggyBank, Plus } from 'lucide-react'
 import TransactionForm from '@/components/TransactionForm'
 import InstallmentForm from '@/components/InstallmentForm'
 import PlanForm from '@/components/PlanForm'
 import RecurringTransactionForm from '@/components/RecurringTransactionForm'
 import SavingsGoalForm from '@/components/SavingsGoalForm'
+import Card from '@/components/ui/Card'
+import Skeleton from '@/components/ui/Skeleton'
 
 type FormType = 'transaction' | 'installment' | 'plan' | 'recurring' | 'savings-goal'
 
@@ -25,85 +27,102 @@ function AddPageContent() {
     }
   }, [searchParams])
 
+  const formTypes = [
+    { 
+      id: 'transaction' as FormType, 
+      icon: Receipt, 
+      label: 'Transação', 
+      shortLabel: 'Transação',
+      activeClass: 'bg-primary-50 text-primary-700 border-primary-300',
+      inactiveClass: 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
+    },
+    { 
+      id: 'recurring' as FormType, 
+      icon: Repeat, 
+      label: 'Recorrente', 
+      shortLabel: 'Recorrente',
+      activeClass: 'bg-primary-50 text-primary-700 border-primary-300',
+      inactiveClass: 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
+    },
+    { 
+      id: 'installment' as FormType, 
+      icon: CreditCard, 
+      label: 'Parcelamento', 
+      shortLabel: 'Parcelar',
+      activeClass: 'bg-warning-50 text-warning-700 border-warning-300',
+      inactiveClass: 'text-secondary-600 hover:text-warning-600 hover:bg-warning-50/50'
+    },
+    { 
+      id: 'plan' as FormType, 
+      icon: Target, 
+      label: 'Planejamento', 
+      shortLabel: 'Planejar',
+      activeClass: 'bg-success-50 text-success-700 border-success-300',
+      inactiveClass: 'text-secondary-600 hover:text-success-600 hover:bg-success-50/50'
+    },
+    { 
+      id: 'savings-goal' as FormType, 
+      icon: PiggyBank, 
+      label: 'Meta de Economia', 
+      shortLabel: 'Meta',
+      activeClass: 'bg-success-50 text-success-700 border-success-300',
+      inactiveClass: 'text-secondary-600 hover:text-success-600 hover:bg-success-50/50'
+    },
+  ]
+
   return (
     <AuthGuard>
-      <div className="min-h-screen pb-20 sm:pb-24">
+      <div className="min-h-screen pb-20 safe-area-bottom">
         <Header />
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-secondary-900 mb-6">
-            Adicionar
-          </h1>
-
-          {/* Seletor de Tipo de Formulário */}
-          <div className="glass rounded-3xl p-2 mb-6 sm:mb-8 flex flex-wrap gap-2 border border-secondary-200/50 shadow-card backdrop-blur-xl">
-            <button
-              type="button"
-              onClick={() => setFormType('transaction')}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 text-sm sm:text-base touch-manipulation hover-lift ${
-                formType === 'transaction'
-                  ? 'bg-primary-50 text-primary-700 border-2 border-primary-300 shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
-              }`}
-            >
-              <Receipt className="w-5 h-5" />
-              <span className="hidden sm:inline">Transação</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormType('recurring')}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 text-sm sm:text-base touch-manipulation hover-lift ${
-                formType === 'recurring'
-                  ? 'bg-primary-50 text-primary-700 border-2 border-primary-300 shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
-              }`}
-            >
-              <Repeat className="w-5 h-5" />
-              <span className="hidden sm:inline">Recorrente</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormType('installment')}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 text-sm sm:text-base touch-manipulation hover-lift ${
-                formType === 'installment'
-                  ? 'bg-primary-50 text-primary-700 border-2 border-primary-300 shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
-              }`}
-            >
-              <CreditCard className="w-5 h-5" />
-              <span className="hidden sm:inline">Parcelamento</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormType('plan')}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 text-sm sm:text-base touch-manipulation hover-lift ${
-                formType === 'plan'
-                  ? 'bg-primary-50 text-primary-700 border-2 border-primary-300 shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
-              }`}
-            >
-              <Target className="w-5 h-5" />
-              <span className="hidden sm:inline">Planejamento</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormType('savings-goal')}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 text-sm sm:text-base touch-manipulation hover-lift ${
-                formType === 'savings-goal'
-                  ? 'bg-primary-50 text-primary-700 border-2 border-primary-300 shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600 hover:bg-primary-50/50'
-              }`}
-            >
-              <PiggyBank className="w-5 h-5" />
-              <span className="hidden sm:inline">Meta</span>
-            </button>
+        <main className="container mx-auto px-4 py-4 max-w-7xl">
+          {/* Header da Página */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+                <Plus className="w-5 h-5 text-primary-600" />
+              </div>
+              <h1 className="text-2xl font-bold text-secondary-900">
+                Adicionar
+              </h1>
+            </div>
+            <p className="text-sm text-secondary-500 ml-13">
+              Crie uma nova transação ou registro financeiro
+            </p>
           </div>
 
+          {/* Seletor de Tipo de Formulário - Mobile First */}
+          <Card variant="default" padding="sm" className="mb-6">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {formTypes.map((form) => {
+                const Icon = form.icon
+                const isActive = formType === form.id
+                return (
+                  <button
+                    key={form.id}
+                    type="button"
+                    onClick={() => setFormType(form.id)}
+                    className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-200 touch-feedback flex-shrink-0 min-w-[100px] border-2 ${
+                      isActive
+                        ? `${form.activeClass} shadow-sm`
+                        : `${form.inactiveClass} border-transparent`
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="text-xs text-center leading-tight">{form.shortLabel}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </Card>
+
           {/* Formulários */}
-          {formType === 'transaction' && <TransactionForm />}
-          {formType === 'recurring' && <RecurringTransactionForm />}
-          {formType === 'installment' && <InstallmentForm />}
-          {formType === 'plan' && <PlanForm />}
-          {formType === 'savings-goal' && <SavingsGoalForm />}
+          <div className="animate-fade-in">
+            {formType === 'transaction' && <TransactionForm />}
+            {formType === 'recurring' && <RecurringTransactionForm />}
+            {formType === 'installment' && <InstallmentForm />}
+            {formType === 'plan' && <PlanForm />}
+            {formType === 'savings-goal' && <SavingsGoalForm />}
+          </div>
         </main>
         <Navigation />
       </div>
@@ -115,14 +134,13 @@ export default function AddPage() {
   return (
     <Suspense fallback={
       <AuthGuard>
-        <div className="min-h-screen pb-20 sm:pb-24">
+        <div className="min-h-screen pb-20 safe-area-bottom">
           <Header />
-          <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <div className="flex items-center justify-center py-12">
-              <div className="relative">
-                <div className="w-12 h-12 border-4 border-secondary-200 rounded-full"></div>
-                <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-              </div>
+          <main className="container mx-auto px-4 py-4 max-w-7xl">
+            <div className="space-y-4">
+              <Skeleton variant="rectangular" height={60} />
+              <Skeleton variant="rectangular" height={200} />
+              <Skeleton variant="rectangular" height={400} />
             </div>
           </main>
           <Navigation />

@@ -51,7 +51,6 @@ export default function UsersManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     try {
       if (editingUser) {
@@ -102,7 +101,6 @@ export default function UsersManagement() {
     })
     setShowForm(true)
     setError('')
-    setSuccess('')
   }
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)

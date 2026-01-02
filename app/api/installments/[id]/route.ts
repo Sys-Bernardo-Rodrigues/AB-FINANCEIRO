@@ -10,6 +10,7 @@ const updateInstallmentSchema = z.object({
   installments: z.number().int().min(2).optional(),
   categoryId: z.string().uuid().optional(),
   status: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED']).optional(),
+  currentInstallment: z.number().int().min(0).optional(),
 })
 
 export async function GET(
@@ -106,6 +107,15 @@ export async function PUT(
     if (data.description) updateData.description = data.description
     if (data.categoryId) updateData.categoryId = data.categoryId
     if (data.status) updateData.status = data.status
+    if (data.currentInstallment !== undefined) {
+      updateData.currentInstallment = data.currentInstallment
+      // Atualizar status se necessário
+      if (data.currentInstallment >= existingInstallment.installments) {
+        updateData.status = 'COMPLETED'
+      } else if (existingInstallment.status === 'COMPLETED' && data.currentInstallment < existingInstallment.installments) {
+        updateData.status = 'ACTIVE'
+      }
+    }
 
     // Se mudou totalAmount ou installments, recalcular currentInstallment baseado nas transações
     if (data.totalAmount !== undefined || data.installments !== undefined) {

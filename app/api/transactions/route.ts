@@ -121,7 +121,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const data = transactionSchema.parse(body)
+    
+    // Validar dados
+    let data
+    try {
+      data = transactionSchema.parse(body)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        await logToRedis('warn', 'Validação falhou ao criar transação', {
+          errors: error.errors,
+          body,
+        })
+        return NextResponse.json(
+          { 
+            error: 'Dados inválidos', 
+            details: error.errors.map(e => ({
+              field: e.path.join('.'),
+              message: e.message,
+            }))
+          },
+          { status: 400 }
+        )
+      }
+      throw error
+    }
 
     // Usar o userId fornecido ou o do usuário autenticado
     const targetUserId = data.userId || user.id
@@ -269,19 +292,24 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(transaction, { status: 201 })
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      await logToRedis('warn', 'Validação falhou ao criar transação', {
-        errors: error.errors,
-      })
-      return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
-        { status: 400 }
-      )
+    // Se já foi tratado anteriormente (validação Zod), não tratar novamente
+    if (error instanceof z.ZodError && error.errors.length > 0) {
+      // Já foi tratado no início
+      throw error
     }
 
-    await logToRedis('error', 'Erro ao criar transação', { error: String(error) })
+    await logToRedis('error', 'Erro ao criar transação', { 
+      error: String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+    })
+    
+    console.error('Erro ao criar transação:', error)
+    
     return NextResponse.json(
-      { error: 'Erro ao criar transação' },
+      { 
+        error: 'Erro ao criar transação',
+        message: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     )
   }

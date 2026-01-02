@@ -59,3 +59,4 @@ console.log('✅ Arquivo de instruções criado em public/ICON_INSTRUCTIONS.md')
 console.log('📋 Siga as instruções para criar os ícones necessários')
 
 
+

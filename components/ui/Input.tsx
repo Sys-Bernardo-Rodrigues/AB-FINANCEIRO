@@ -21,35 +21,35 @@ export default function Input({
   className = '',
   ...props
 }: InputProps) {
-  const baseClasses = 'glass border rounded-2xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-base backdrop-blur-xl'
+  const baseClasses = 'w-full bg-white border rounded-2xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-base outline-none'
 
   const errorClasses = error
-    ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500'
-    : 'border-secondary-300/50'
+    ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500 bg-danger-50/50'
+    : 'border-secondary-200 focus:border-primary-500'
 
-  const paddingClasses = leftIcon ? 'pl-10 sm:pl-12' : 'pl-4 sm:pl-5'
-  const paddingRightClasses = rightIcon ? 'pr-10 sm:pr-12' : 'pr-4 sm:pr-5'
+  const paddingClasses = leftIcon ? 'pl-12' : 'pl-4'
+  const paddingRightClasses = rightIcon ? 'pr-12' : 'pr-4'
 
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-sm sm:text-base font-semibold text-secondary-700 mb-2 sm:mb-3">
+        <label className="block text-sm font-semibold text-secondary-700 mb-2">
           {label}
           {props.required && <span className="text-danger-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 pointer-events-none">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-secondary-400 pointer-events-none">
             {leftIcon}
           </div>
         )}
         <input
-          className={`${baseClasses} ${errorClasses} ${paddingClasses} ${paddingRightClasses} py-3 sm:py-4 ${className}`}
+          className={`${baseClasses} ${errorClasses} ${paddingClasses} ${paddingRightClasses} py-3.5 min-h-[48px] ${className}`}
           {...props}
         />
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 pointer-events-none">
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secondary-400 pointer-events-none">
             {rightIcon}
           </div>
         )}
@@ -66,4 +66,3 @@ export default function Input({
     </div>
   )
 }
-

@@ -209,31 +209,31 @@ export default function Dashboard() {
   const isCurrentMonth = selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8 animate-fade-in">
-      {/* Header com Seletor de Mês */}
+    <div className="space-y-4 animate-fade-in pb-20">
+      {/* Header com Seletor de Mês - Mobile First */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-1">
           <button
             onClick={handlePreviousMonth}
-            className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-manipulation"
+            className="p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-feedback"
             aria-label="Mês anterior"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="text-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-secondary-900">
+          <div className="text-center flex-1">
+            <h2 className="text-lg font-bold text-secondary-900">
               {getMonthName(selectedMonth)} {selectedYear}
             </h2>
             {isCurrentMonth && (
-              <p className="text-xs text-secondary-500 mt-1">
-                {data?.daysRemainingInMonth} dias restantes no mês
+              <p className="text-xs text-secondary-500 mt-0.5">
+                {data?.daysRemainingInMonth} dias restantes
               </p>
             )}
           </div>
           <button
             onClick={handleNextMonth}
             disabled={selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()}
-            className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-feedback disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Próximo mês"
           >
             <ChevronRight className="w-5 h-5" />
@@ -245,24 +245,24 @@ export default function Dashboard() {
               setSelectedMonth(now.getMonth() + 1)
               setSelectedYear(now.getFullYear())
             }}
-            className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
+            className="ml-2 px-3 py-2 bg-primary-600 text-white rounded-xl text-xs font-semibold hover:bg-primary-700 transition-colors touch-feedback"
           >
-            Mês Atual
+            Hoje
           </button>
         )}
       </div>
 
-      {/* Cards de Resumo do Mês */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      {/* Cards de Resumo do Mês - Mobile First */}
+      <div className="grid grid-cols-1 gap-3">
         <BalanceCard 
           title={`Saldo de ${getMonthName(selectedMonth)}`}
           amount={data.balance}
-          icon={data.balance < 0 ? <TrendingDown className="w-6 h-6" /> : <TrendingUp className="w-6 h-6" />}
+          icon={data.balance < 0 ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
           type={data.balance < 0 ? "negative" : "balance"}
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 gap-3">
         <div className="relative">
           <BalanceCard 
             title="Receitas do Mês"
@@ -301,41 +301,41 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Estatísticas do Mês */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-secondary-500" />
-            <span className="text-xs text-secondary-600">Média Diária Receitas</span>
+      {/* Estatísticas do Mês - Mobile First */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <DollarSign className="w-3.5 h-3.5 text-secondary-500" />
+            <span className="text-[10px] text-secondary-600">Média Diária Receitas</span>
           </div>
-          <p className="text-lg font-bold text-success-600">
+          <p className="text-base font-bold text-success-600">
             {formatCurrency(data.avgDailyIncome)}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingDownIcon className="w-4 h-4 text-secondary-500" />
-            <span className="text-xs text-secondary-600">Média Diária Despesas</span>
+        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <TrendingDownIcon className="w-3.5 h-3.5 text-secondary-500" />
+            <span className="text-[10px] text-secondary-600">Média Diária Despesas</span>
           </div>
-          <p className="text-lg font-bold text-danger-600">
+          <p className="text-base font-bold text-danger-600">
             {formatCurrency(data.avgDailyExpense)}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="w-4 h-4 text-secondary-500" />
-            <span className="text-xs text-secondary-600">Transações</span>
+        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Calendar className="w-3.5 h-3.5 text-secondary-500" />
+            <span className="text-[10px] text-secondary-600">Transações</span>
           </div>
-          <p className="text-lg font-bold text-secondary-900">
+          <p className="text-base font-bold text-secondary-900">
             {data.metrics?.totalTransactions || 0}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="w-4 h-4 text-secondary-500" />
-            <span className="text-xs text-secondary-600">Taxa de Poupança</span>
+        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Target className="w-3.5 h-3.5 text-secondary-500" />
+            <span className="text-[10px] text-secondary-600">Taxa Poupança</span>
           </div>
-          <p className={`text-lg font-bold ${
+          <p className={`text-base font-bold ${
             (data.metrics?.savingsRate || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
           }`}>
             {(data.metrics?.savingsRate || 0) >= 0 ? '+' : ''}{(data.metrics?.savingsRate || 0).toFixed(1)}%

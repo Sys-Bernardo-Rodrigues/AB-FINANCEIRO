@@ -161,11 +161,6 @@ export async function GET(request: NextRequest) {
       },
       include: {
         category: true,
-        receipts: {
-          orderBy: {
-            uploadedAt: 'desc',
-          },
-        },
       },
       orderBy: {
         nextDueDate: 'asc',

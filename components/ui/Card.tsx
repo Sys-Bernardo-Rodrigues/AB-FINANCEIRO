@@ -17,23 +17,25 @@ export default function Card({
   className = '',
   ...props
 }: CardProps) {
-  const baseClasses = 'rounded-2xl transition-all duration-300'
+  const baseClasses = 'rounded-2xl transition-all duration-200'
 
   const variants = {
-    default: 'bg-white border border-secondary-200 shadow-card',
-    glass: 'glass border border-secondary-200/50 backdrop-blur-xl',
-    elevated: 'bg-white border border-secondary-200 shadow-elevated',
-    outlined: 'bg-white border-2 border-secondary-300',
+    default: 'bg-white border border-secondary-200 shadow-mobile',
+    glass: 'glass-card border border-white/50',
+    elevated: 'bg-white border border-secondary-200 shadow-mobile-lg',
+    outlined: 'bg-white border-2 border-secondary-200',
   }
 
   const paddings = {
     none: '',
     sm: 'p-4',
-    md: 'p-5 sm:p-6',
-    lg: 'p-6 sm:p-8',
+    md: 'p-5',
+    lg: 'p-6',
   }
 
-  const hoverClasses = hover ? 'hover:shadow-card-hover hover-lift cursor-pointer' : ''
+  const hoverClasses = hover 
+    ? 'hover:shadow-mobile-lg active:scale-[0.98] cursor-pointer' 
+    : ''
 
   return (
     <div
@@ -44,4 +46,3 @@ export default function Card({
     </div>
   )
 }
-
