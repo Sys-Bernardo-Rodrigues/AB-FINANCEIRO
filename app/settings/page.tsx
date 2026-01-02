@@ -1,10 +1,79 @@
+'use client'
+
+import { useState } from 'react'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import AuthGuard from '@/components/AuthGuard'
-import Link from 'next/link'
-import { ArrowRight, Receipt, Tag, Users } from 'lucide-react'
+import Button from '@/components/ui/Button'
+import { Download, RefreshCw, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+
+interface UpdateStep {
+  step: string
+  status: 'success' | 'error'
+  message: string
+}
 
 export default function SettingsPage() {
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [updateSteps, setUpdateSteps] = useState<UpdateStep[]>([])
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [updateMessage, setUpdateMessage] = useState('')
+
+  const handleUpdate = async () => {
+    setIsUpdating(true)
+    setUpdateSteps([])
+    setUpdateStatus('idle')
+    setUpdateMessage('')
+
+    try {
+      const response = await fetch('/api/system/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setUpdateStatus('success')
+        setUpdateMessage(data.message)
+        setUpdateSteps(data.steps || [])
+        
+        if (data.requiresRestart) {
+          setUpdateMessage('Sistema atualizado com sucesso! Reinicie a aplicação para aplicar as mudanças.')
+        }
+      } else {
+        setUpdateStatus('error')
+        setUpdateMessage(data.message || 'Erro ao atualizar o sistema')
+        setUpdateSteps(data.steps || [])
+      }
+    } catch (error: any) {
+      setUpdateStatus('error')
+      setUpdateMessage('Erro ao conectar com o servidor')
+      console.error('Erro na atualização:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const getStepIcon = (status: 'success' | 'error') => {
+    if (status === 'success') {
+      return <CheckCircle className="w-5 h-5 text-success-600" />
+    }
+    return <XCircle className="w-5 h-5 text-danger-600" />
+  }
+
+  const getStepLabel = (step: string) => {
+    const labels: Record<string, string> = {
+      fetch: 'Buscar atualizações',
+      pull: 'Baixar atualizações',
+      install: 'Instalar dependências',
+      prisma: 'Atualizar Prisma',
+    }
+    return labels[step] || step
+  }
+
   return (
     <AuthGuard>
       <div className="min-h-screen pb-20 sm:pb-24">
@@ -38,80 +107,96 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Gerenciamento de Transações */}
+            {/* Atualização do Sistema */}
             <div className="glass rounded-xl border border-secondary-200/50 shadow-card p-6 backdrop-blur-xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-                    <Receipt className="w-5 h-5 text-primary-600" />
+                    <Download className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-secondary-900">Gerenciar Transações</h2>
-                    <p className="text-sm text-secondary-500">Visualize e delete transações</p>
+                    <h2 className="text-lg font-semibold text-secondary-900">Atualização do Sistema</h2>
+                    <p className="text-sm text-secondary-500">Atualizar do repositório GitHub</p>
                   </div>
                 </div>
               </div>
-              <Link
-                href="/transactions/manage"
-                className="flex items-center justify-between w-full px-4 py-3 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-colors group hover-lift"
-              >
-                <span className="font-medium text-primary-700">Abrir Gerenciador de Transações</span>
-                <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
+
+              <div className="space-y-4">
+                <Button
+                  onClick={handleUpdate}
+                  isLoading={isUpdating}
+                  leftIcon={<RefreshCw className="w-5 h-5" />}
+                  fullWidth
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? 'Atualizando...' : 'Atualizar Sistema'}
+                </Button>
+
+                {updateStatus !== 'idle' && (
+                  <div className={`p-4 rounded-xl border-2 ${
+                    updateStatus === 'success' 
+                      ? 'bg-success-50 border-success-200' 
+                      : 'bg-danger-50 border-danger-200'
+                  }`}>
+                    <div className="flex items-start gap-3">
+                      {updateStatus === 'success' ? (
+                        <CheckCircle className="w-5 h-5 text-success-600 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-danger-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <p className={`font-medium ${
+                          updateStatus === 'success' ? 'text-success-900' : 'text-danger-900'
+                        }`}>
+                          {updateMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {updateSteps.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-secondary-700">Detalhes da atualização:</h3>
+                    <div className="space-y-2">
+                      {updateSteps.map((step, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-start gap-3 p-3 rounded-lg border ${
+                            step.status === 'success'
+                              ? 'bg-success-50 border-success-200'
+                              : 'bg-danger-50 border-danger-200'
+                          }`}
+                        >
+                          {getStepIcon(step.status)}
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${
+                              step.status === 'success' ? 'text-success-900' : 'text-danger-900'
+                            }`}>
+                              {getStepLabel(step.step)}
+                            </p>
+                            <p className={`text-xs mt-1 ${
+                              step.status === 'success' ? 'text-success-700' : 'text-danger-700'
+                            }`}>
+                              {step.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {updateStatus === 'success' && (
+                  <div className="p-3 bg-warning-50 border border-warning-200 rounded-lg">
+                    <p className="text-sm text-warning-800">
+                      <strong>Nota:</strong> Após a atualização, pode ser necessário reiniciar a aplicação para aplicar todas as mudanças.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Gerenciamento de Categorias */}
-            <div className="glass rounded-xl border border-secondary-200/50 shadow-card p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-success-100 rounded-xl flex items-center justify-center">
-                    <Tag className="w-5 h-5 text-success-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-secondary-900">Gerenciar Categorias</h2>
-                    <p className="text-sm text-secondary-500">Crie, edite e delete categorias</p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Link
-                  href="/categories/manage"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-success-50 hover:bg-success-100 border border-success-200 rounded-xl transition-colors group hover-lift"
-                >
-                  <span className="font-medium text-success-700">Abrir Gerenciador de Categorias</span>
-                  <ArrowRight className="w-5 h-5 text-success-600 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/categories/insights"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-colors group hover-lift"
-                >
-                  <span className="font-medium text-primary-700">Ver Análise de Categorias</span>
-                  <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Gerenciamento de Usuários */}
-            <div className="glass rounded-xl border border-secondary-200/50 shadow-card p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-secondary-900">Gerenciar Usuários</h2>
-                    <p className="text-sm text-secondary-500">Crie, edite e delete usuários</p>
-                  </div>
-                </div>
-              </div>
-              <Link
-                href="/users/manage"
-                className="flex items-center justify-between w-full px-4 py-3 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-colors group hover-lift"
-              >
-                <span className="font-medium text-primary-700">Abrir Gerenciador de Usuários</span>
-                <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
           </div>
         </main>
         <Navigation />
