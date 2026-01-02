@@ -28,3 +28,4 @@ ALTER TABLE "receipts" ADD CONSTRAINT "receipts_transactionId_fkey" FOREIGN KEY 
 
 
 
+

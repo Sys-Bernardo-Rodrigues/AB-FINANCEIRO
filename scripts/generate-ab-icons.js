@@ -128,3 +128,4 @@ console.log('   1. Siga as instruções para converter o SVG em PNG')
 console.log('   2. Coloque os arquivos PNG na pasta public/')
 console.log('   3. Teste o aplicativo para verificar se os ícones aparecem corretamente\n')
 
+

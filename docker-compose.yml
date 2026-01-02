@@ -6,15 +6,15 @@ services:
     container_name: financeiro_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: financeiro
-      POSTGRES_PASSWORD: financeiro123
-      POSTGRES_DB: financeiro_db
+      POSTGRES_USER: ${POSTGRES_USER:-financeiro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-financeiro123}
+      POSTGRES_DB: ${POSTGRES_DB:-financeiro_db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-0}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U financeiro"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-financeiro}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,7 +24,7 @@ services:
     container_name: financeiro_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-0}:6379"
     volumes:
       - redis_data:/data
     healthcheck:

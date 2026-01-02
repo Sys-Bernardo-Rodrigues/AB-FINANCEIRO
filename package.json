@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "ports:generate": "node scripts/generate-ports.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",

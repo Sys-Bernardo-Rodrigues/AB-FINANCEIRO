@@ -103,3 +103,4 @@ console.log('✅ Arquivo de instruções criado em public/IOS_ASSETS_INSTRUCTION
 console.log('📋 Siga as instruções para criar os ícones e splash screens necessários para iOS')
 
 
+

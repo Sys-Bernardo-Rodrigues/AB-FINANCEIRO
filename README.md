@@ -28,56 +28,200 @@ Sistema de controle financeiro pessoal desenvolvido com Next.js, TypeScript, Pos
 
 ## 🛠️ Instalação
 
-### Opção 1: Instalador Automático (Windows) ⚡
-
-Para Windows, use o instalador Python que automatiza todo o processo:
-
-1. **Gerar executáveis** (opcional):
-   ```bash
-   python installer/build_exe.py
-   ```
-   Ou use o script batch:
-   ```bash
-   installer\build.bat
-   ```
-
-2. **Executar instalador**:
-   - Execute `AB_Financeiro_Instalador.exe` (se gerado)
-   - Ou execute `python installer/installer.py`
-   - Ou use: `installer\run_installer.bat`
-
-3. **Iniciar sistema**:
-   - Execute `AB_Financeiro_Launcher.exe` (se gerado)
-   - Ou execute `python installer/launcher.py`
-   - Ou use: `installer\run_launcher.bat`
-
-📖 **Documentação completa**: Veja `installer/README.md`
-
-### Opção 2: Instalação Manual
-
 ### Pré-requisitos
 
+**Windows:**
+- Node.js 20+ ([Download](https://nodejs.org/))
+- Docker Desktop para Windows ([Download](https://www.docker.com/products/docker-desktop))
+- Git para Windows ([Download](https://git-scm.com/download/win))
+- npm (vem com Node.js)
+
+**Linux/AlmaLinux:**
 - Node.js 20+
 - Docker e Docker Compose
+- Git
 - npm ou yarn
 
-### Passo a Passo
+---
 
-1. **Clone o repositório e instale as dependências:**
+### Instalação no Windows
+
+#### 1. Instalar Pré-requisitos
+
+**Node.js:**
+1. Baixe o instalador em [nodejs.org](https://nodejs.org/)
+2. Execute o instalador e siga as instruções
+3. Verifique a instalação:
+   ```powershell
+   node --version
+   npm --version
+   ```
+
+**Docker Desktop:**
+1. Baixe o Docker Desktop em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+2. Execute o instalador
+3. Reinicie o computador se solicitado
+4. Abra o Docker Desktop e aguarde a inicialização
+5. Verifique a instalação:
+   ```powershell
+   docker --version
+   docker-compose --version
+   ```
+
+#### 2. Clone o Repositório
+
+```powershell
+git clone <url-do-repositorio>
+cd FINANCEIRO
+```
+
+#### 3. Instale as Dependências
+
+```powershell
+npm install
+```
+
+#### 4. Configure as Variáveis de Ambiente
+
+**Opção A - Se existir `.env.example`:**
+Copie o arquivo `.env.example` para `.env`:
+
+```powershell
+copy .env.example .env
+```
+
+**Opção B - O script criará o arquivo automaticamente:**
+Se o arquivo `.env.example` não existir, o script criará o `.env` automaticamente.
+
+Gere portas aleatórias para evitar conflitos:
+
+```powershell
+npm run ports:generate
+```
+
+Isso gerará portas aleatórias para PostgreSQL e Redis e criará/atualizará o arquivo `.env` automaticamente.
+
+#### 5. Inicie os Containers Docker
+
+```powershell
+npm run docker:up
+```
+
+Ou manualmente:
+
+```powershell
+docker-compose up -d
+```
+
+#### 6. Configure o Banco de Dados
+
+```powershell
+# Gerar o cliente Prisma
+npm run db:generate
+
+# Executar as migrações
+npm run db:migrate
+
+# Popular o banco com dados iniciais (opcional)
+npx prisma db seed
+```
+
+#### 7. Execute o Servidor de Desenvolvimento
+
+```powershell
+npm run dev
+```
+
+#### 8. Acesse a Aplicação
+
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+
+---
+
+### Instalação no Linux/AlmaLinux
+
+#### 1. Instalar Pré-requisitos
+
+**Atualize o sistema:**
+```bash
+sudo dnf update -y
+```
+
+**Instalar Node.js 20+ (usando NodeSource):**
+```bash
+# Instalar curl se não estiver instalado
+sudo dnf install -y curl
+
+# Adicionar repositório NodeSource
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+
+# Instalar Node.js
+sudo dnf install -y nodejs
+
+# Verificar instalação
+node --version
+npm --version
+```
+
+**Instalar Docker e Docker Compose:**
+```bash
+# Instalar Docker
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Iniciar e habilitar Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Adicionar usuário ao grupo docker (para não precisar usar sudo)
+sudo usermod -aG docker $USER
+
+# Verificar instalação
+docker --version
+docker compose version
+
+# IMPORTANTE: Faça logout e login novamente para que as permissões do grupo docker sejam aplicadas
+```
+
+**Instalar Git:**
+```bash
+sudo dnf install -y git
+```
+
+#### 2. Clone o Repositório
+
+```bash
+git clone <url-do-repositorio>
+cd FINANCEIRO
+```
+
+#### 3. Instale as Dependências
 
 ```bash
 npm install
 ```
 
-2. **Configure as variáveis de ambiente:**
+#### 4. Configure as Variáveis de Ambiente
 
+**Opção A - Se existir `.env.example`:**
 Copie o arquivo `.env.example` para `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-3. **Inicie os containers Docker (PostgreSQL e Redis):**
+**Opção B - O script criará o arquivo automaticamente:**
+Se o arquivo `.env.example` não existir, o script criará o `.env` automaticamente.
+
+Gere portas aleatórias para evitar conflitos:
+
+```bash
+npm run ports:generate
+```
+
+Isso gerará portas aleatórias para PostgreSQL e Redis e criará/atualizará o arquivo `.env` automaticamente.
+
+#### 5. Inicie os Containers Docker
 
 ```bash
 npm run docker:up
@@ -86,10 +230,12 @@ npm run docker:up
 Ou manualmente:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-4. **Configure o banco de dados:**
+**Nota:** No Linux, você pode usar `docker compose` (com espaço) ou `docker-compose` (com hífen). O Docker Compose Plugin (v2) usa o formato com espaço.
+
+#### 6. Configure o Banco de Dados
 
 ```bash
 # Gerar o cliente Prisma
@@ -102,13 +248,23 @@ npm run db:migrate
 npx prisma db seed
 ```
 
-5. **Execute o servidor de desenvolvimento:**
+#### 7. Execute o Servidor de Desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-6. **Abra [http://localhost:3000](http://localhost:3000) no seu navegador.**
+#### 8. Acesse a Aplicação
+
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+
+**Nota para acesso remoto:** Se estiver acessando de outro computador, certifique-se de que a porta 3000 está aberta no firewall:
+
+```bash
+# Firewalld (AlmaLinux)
+sudo firewall-cmd --permanent --add-port=3000/tcp
+sudo firewall-cmd --reload
+```
 
 ## 🐳 Docker
 
