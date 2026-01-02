@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  password      String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  transactions  Transaction[]
+  installments  Installment[]
+  plans         Plan[]
+  categories    Category[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  type        TransactionType
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  transactions Transaction[]
+  installments Installment[]
+  plans       Plan[]
+
+  @@unique([name, userId])
+  @@map("categories")
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  description     String
+  amount          Float
+  type            TransactionType
+  categoryId      String
+  category        Category        @relation(fields: [categoryId], references: [id])
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  date            DateTime        @default(now())
+  isInstallment   Boolean         @default(false)
+  installmentId  String?
+  installment     Installment?    @relation(fields: [installmentId], references: [id])
+  isScheduled     Boolean         @default(false)
+  scheduledDate   DateTime?
+  planId          String?
+  plan            Plan?           @relation(fields: [planId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("transactions")
+}
+
+model Installment {
+  id              String          @id @default(uuid())
+  description     String
+  totalAmount     Float
+  installments    Int
+  currentInstallment Int          @default(1)
+  categoryId      String
+  category        Category        @relation(fields: [categoryId], references: [id])
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  startDate       DateTime        @default(now())
+  status          InstallmentStatus @default(ACTIVE)
+  transactions    Transaction[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("installments")
+}
+
+model Plan {
+  id              String          @id @default(uuid())
+  name            String
+  description     String?
+  targetAmount    Float
+  currentAmount   Float           @default(0)
+  startDate       DateTime        @default(now())
+  endDate         DateTime
+  categoryId      String
+  category        Category        @relation(fields: [categoryId], references: [id])
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  status          PlanStatus      @default(ACTIVE)
+  transactions    Transaction[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("plans")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum InstallmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+

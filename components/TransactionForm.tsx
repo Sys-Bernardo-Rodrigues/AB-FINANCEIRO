@@ -1,0 +1,253 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
+import { ArrowDownCircle, ArrowUpCircle, User } from 'lucide-react'
+
+interface Category {
+  id: string
+  name: string
+  type: 'INCOME' | 'EXPENSE'
+}
+
+interface UserData {
+  id: string
+  name: string
+  email: string
+}
+
+export default function TransactionForm() {
+  const router = useRouter()
+  const { user: currentUser } = useAuth()
+  const [type, setType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
+  const [description, setDescription] = useState('')
+  const [amount, setAmount] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [userId, setUserId] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [users, setUsers] = useState<UserData[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchCategories()
+    fetchUsers()
+  }, [])
+
+  useEffect(() => {
+    if (currentUser && !userId) {
+      setUserId(currentUser.id)
+    }
+  }, [currentUser, userId])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      if (response.ok) {
+        const data = await response.json()
+        setCategories(data)
+        const filtered = data.filter((cat: Category) => cat.type === type)
+        if (filtered.length > 0) {
+          setCategoryId(filtered[0].id)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error)
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error)
+    }
+  }
+
+  const filteredCategories = categories.filter(cat => cat.type === type)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          description,
+          amount: parseFloat(amount),
+          type,
+          categoryId,
+          date,
+          userId: userId || undefined,
+        }),
+      })
+
+      if (response.ok) {
+        router.push('/')
+        router.refresh()
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Erro ao criar transação')
+      }
+    } catch (error) {
+      setError('Erro ao criar transação. Tente novamente.')
+      console.error('Erro:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Seletor de Tipo */}
+      <div className="bg-white rounded-xl p-1 flex gap-2 border border-secondary-200 shadow-card">
+        <button
+          type="button"
+          onClick={() => setType('EXPENSE')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all touch-manipulation ${
+            type === 'EXPENSE'
+              ? 'bg-danger-50 text-danger-700 border-2 border-danger-200'
+              : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50'
+          }`}
+        >
+          <ArrowDownCircle className="w-5 h-5" />
+          Despesa
+        </button>
+        <button
+          type="button"
+          onClick={() => setType('INCOME')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all touch-manipulation ${
+            type === 'INCOME'
+              ? 'bg-success-50 text-success-700 border-2 border-success-200'
+              : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50'
+          }`}
+        >
+          <ArrowUpCircle className="w-5 h-5" />
+          Receita
+        </button>
+      </div>
+
+      {/* Formulário */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Descrição
+          </label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Ex: Supermercado, Salário..."
+            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Valor
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0,00"
+            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Data
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Usuário
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+            <select
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+              required
+            >
+              {users.length === 0 ? (
+                <option value="">Carregando usuários...</option>
+              ) : (
+                users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name} {user.id === currentUser?.id && '(Você)'}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Categoria
+          </label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+            required
+          >
+            {filteredCategories.length === 0 ? (
+              <option value="">Carregando categorias...</option>
+            ) : (
+              filteredCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+
+        {error && (
+          <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3.5 rounded-xl font-semibold text-white shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            type === 'INCOME'
+              ? 'gradient-success'
+              : 'gradient-danger'
+          }`}
+        >
+          {loading ? 'Adicionando...' : 'Adicionar Transação'}
+        </button>
+      </form>
+    </div>
+  )
+}
