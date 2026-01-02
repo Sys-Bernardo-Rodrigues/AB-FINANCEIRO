@@ -266,6 +266,31 @@ npm run build
 
 Para que o sistema inicie automaticamente e rode como serviço no AlmaLinux:
 
+**🚀 OPÇÃO 1: Script Automático (RECOMENDADO)**
+
+Use o script fornecido que automatiza todo o processo:
+
+```bash
+# Dar permissão de execução ao script (se necessário)
+chmod +x scripts/setup-service.sh
+
+# Executar o script como root
+sudo ./scripts/setup-service.sh
+```
+
+O script irá:
+- ✅ Descobrir automaticamente os caminhos do npm/node
+- ✅ Detectar o usuário atual e diretório do projeto
+- ✅ Verificar se o build foi feito
+- ✅ Criar o arquivo de serviço systemd
+- ✅ Configurar permissões
+- ✅ Habilitar e iniciar o serviço
+- ✅ Mostrar o status e comandos úteis
+
+**📝 OPÇÃO 2: Configuração Manual**
+
+Se preferir configurar manualmente:
+
 1. **Crie o arquivo de serviço systemd:**
 
 ```bash
@@ -380,7 +405,7 @@ sudo systemctl start financeiro.service
 sudo systemctl status financeiro.service
 ```
 
-4. **Comandos úteis para gerenciar o serviço:**
+5. **Comandos úteis para gerenciar o serviço:**
 
 ```bash
 # Ver status
@@ -408,7 +433,7 @@ sudo journalctl -u financeiro.service --since today
 sudo systemctl disable financeiro.service
 ```
 
-5. **Verificar se o serviço está rodando:**
+6. **Verificar se o serviço está rodando:**
 
 ```bash
 # Ver status detalhado
@@ -423,7 +448,7 @@ sudo ss -tlnp | grep :3000
 curl http://localhost:3000
 ```
 
-#### 10. Configure o Firewall
+#### 10. Configure o Firewall (se necessário)
 
 Se estiver acessando de outro computador, certifique-se de que a porta 3000 está aberta no firewall:
 

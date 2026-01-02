@@ -63,11 +63,14 @@ export async function POST(request: NextRequest) {
     })
 
     // Definir cookie
+    // Usar secure apenas se estiver em HTTPS (verificar via variável de ambiente ou request)
+    const isSecure = request.url.startsWith('https://') || process.env.FORCE_SECURE_COOKIES === 'true'
     response.cookies.set('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 dias
+      path: '/',
     })
 
     return response
