@@ -11,7 +11,7 @@ import { ToastContainer } from '@/components/ui/Toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Sistema Financeiro',
+  title: 'AB Financeiro',
   description: 'Sistema de controle financeiro pessoal',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
   manifest: '/manifest.json',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Sistema Financeiro',
+    title: 'AB Financeiro',
   },
   icons: {
     icon: [

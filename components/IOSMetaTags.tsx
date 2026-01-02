@@ -38,7 +38,7 @@ export default function IOSMetaTags() {
     // Meta tags para iOS
     addMetaTag('apple-mobile-web-app-capable', 'yes')
     addMetaTag('apple-mobile-web-app-status-bar-style', 'default')
-    addMetaTag('apple-mobile-web-app-title', 'Sistema Financeiro')
+    addMetaTag('apple-mobile-web-app-title', 'AB Financeiro')
     addMetaTag('mobile-web-app-capable', 'yes')
 
     // Ícones Apple Touch Icon (usando os ícones principais como fallback)

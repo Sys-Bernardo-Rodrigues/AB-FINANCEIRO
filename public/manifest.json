@@ -1,6 +1,6 @@
 {
-  "name": "Sistema Financeiro",
-  "short_name": "Financeiro",
+  "name": "AB Financeiro",
+  "short_name": "AB Financeiro",
   "description": "Sistema de controle financeiro pessoal",
   "start_url": "/",
   "display": "standalone",

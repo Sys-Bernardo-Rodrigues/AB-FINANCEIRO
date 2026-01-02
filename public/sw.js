@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sistema-financeiro-v1'
+const CACHE_NAME = 'ab-financeiro-v1'
 const RUNTIME_CACHE = 'runtime-cache-v1'
 const API_CACHE = 'api-cache-v1'
 
@@ -6,7 +6,6 @@ const API_CACHE = 'api-cache-v1'
 const STATIC_ASSETS = [
   '/',
   '/login',
-  '/register',
   '/manifest.json',
 ]
 
@@ -137,7 +136,7 @@ async function syncTransactions() {
 // Notificações push
 self.addEventListener('push', (event) => {
   const data = event.data?.json() || {}
-  const title = data.title || 'Sistema Financeiro'
+  const title = data.title || 'AB Financeiro'
   const options = {
     body: data.body || 'Você tem uma nova notificação',
     icon: '/icon-192.png',

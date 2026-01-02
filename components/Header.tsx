@@ -18,7 +18,7 @@ export default function Header() {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent truncate">
-                Financeiro
+                AB Financeiro
               </h1>
             </div>
           </div>
