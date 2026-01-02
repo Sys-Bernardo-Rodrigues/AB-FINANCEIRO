@@ -129,3 +129,4 @@ console.log('   2. Coloque os arquivos PNG na pasta public/')
 console.log('   3. Teste o aplicativo para verificar se os ícones aparecem corretamente\n')
 
 
+

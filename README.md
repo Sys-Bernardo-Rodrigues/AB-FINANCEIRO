@@ -393,13 +393,98 @@ Os logs são armazenados por 7 dias e mantém os 100 mais recentes em uma lista.
 
 ## 🔒 Variáveis de Ambiente
 
+### Desenvolvimento
+
 Crie um arquivo `.env` na raiz do projeto com:
 
 ```env
+# Ambiente
+NODE_ENV="development"
+
+# Banco de Dados PostgreSQL
 DATABASE_URL="postgresql://financeiro:financeiro123@localhost:5432/financeiro_db?schema=public"
+POSTGRES_USER="financeiro"
+POSTGRES_PASSWORD="financeiro123"
+POSTGRES_DB="financeiro_db"
+POSTGRES_PORT=5432
+
+# Redis
 REDIS_URL="redis://localhost:6379"
+REDIS_PORT=6379
+
+# JWT (Autenticação)
+JWT_SECRET="seu-jwt-secret-super-seguro-aqui-altere-em-producao"
+
+# Cron Jobs (para tarefas agendadas)
+CRON_SECRET="seu-cron-secret-aqui"
+
+# URL da Aplicação
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
+
+### Produção
+
+Para produção, use valores seguros e específicos do seu ambiente:
+
+```env
+# Ambiente
+NODE_ENV="production"
+
+# Banco de Dados PostgreSQL
+# IMPORTANTE: Use credenciais fortes e uma conexão segura (SSL)
+DATABASE_URL="postgresql://usuario_seguro:senha_super_forte@servidor-db:5432/financeiro_db?schema=public&sslmode=require"
+POSTGRES_USER="usuario_seguro"
+POSTGRES_PASSWORD="senha_super_forte_complexa_min_32_chars"
+POSTGRES_DB="financeiro_db"
+POSTGRES_PORT=5432
+
+# Redis
+# IMPORTANTE: Em produção, considere usar Redis com autenticação
+REDIS_URL="redis://:senha_redis_forte@servidor-redis:6379"
+# Ou com SSL: REDIS_URL="rediss://:senha_redis_forte@servidor-redis:6380"
+REDIS_PORT=6379
+
+# JWT (Autenticação)
+# IMPORTANTE: Gere uma string aleatória forte (mínimo 32 caracteres)
+# Use: openssl rand -base64 32 ou node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+JWT_SECRET="sua-chave-jwt-super-segura-gerada-aleatoriamente-min-32-chars"
+
+# Cron Jobs (para tarefas agendadas)
+# IMPORTANTE: Use uma chave secreta diferente do JWT_SECRET
+CRON_SECRET="sua-chave-cron-secreta-gerada-aleatoriamente"
+
+# URL da Aplicação
+# IMPORTANTE: Use o domínio real da sua aplicação em produção
+NEXT_PUBLIC_APP_URL="https://seu-dominio.com.br"
+
+# Porta do Next.js (opcional, padrão é 3000)
+PORT=3000
+```
+
+### 🔐 Segurança em Produção
+
+**IMPORTANTE:** Ao configurar para produção:
+
+1. **Gere secrets fortes:**
+   ```bash
+   # JWT Secret
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   
+   # Cron Secret
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   ```
+
+2. **Use senhas fortes** para PostgreSQL e Redis (mínimo 32 caracteres, com letras, números e símbolos)
+
+3. **Habilite SSL/TLS** nas conexões de banco de dados
+
+4. **Nunca commite** o arquivo `.env` no repositório (já deve estar no `.gitignore`)
+
+5. **Use variáveis de ambiente** do seu provedor de hospedagem (Vercel, Railway, AWS, etc.) ao invés de arquivo `.env` quando possível
+
+6. **Configure firewall** para permitir apenas conexões necessárias
+
+7. **Use Redis com autenticação** em produção
 
 ## 📝 Licença
 
