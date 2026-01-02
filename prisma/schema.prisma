@@ -21,6 +21,10 @@ model User {
   installments  Installment[]
   plans         Plan[]
   categories    Category[]
+  recurringTransactions RecurringTransaction[]
+  savingsGoals  SavingsGoal[]
+  notifications Notification[]
+  receipts      Receipt[]
 
   @@map("users")
 }
@@ -37,6 +41,8 @@ model Category {
   transactions Transaction[]
   installments Installment[]
   plans       Plan[]
+  recurringTransactions RecurringTransaction[]
+  receipts    Receipt[]
 
   @@unique([name, userId])
   @@map("categories")
@@ -59,6 +65,7 @@ model Transaction {
   scheduledDate   DateTime?
   planId          String?
   plan            Plan?           @relation(fields: [planId], references: [id])
+  receipts        Receipt[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -119,5 +126,116 @@ enum PlanStatus {
   ACTIVE
   COMPLETED
   CANCELLED
+}
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  YEARLY
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum GoalPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+model RecurringTransaction {
+  id            String              @id @default(uuid())
+  description   String
+  amount        Float
+  type          TransactionType
+  frequency     RecurrenceFrequency
+  startDate     DateTime
+  endDate       DateTime?
+  nextDueDate   DateTime
+  categoryId    String
+  category      Category            @relation(fields: [categoryId], references: [id])
+  userId        String
+  user          User                @relation(fields: [userId], references: [id])
+  isActive      Boolean             @default(true)
+  lastExecuted  DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@map("recurring_transactions")
+}
+
+model SavingsGoal {
+  id            String      @id @default(uuid())
+  name          String
+  description   String?
+  targetAmount  Float
+  currentAmount Float       @default(0)
+  period        GoalPeriod
+  startDate     DateTime
+  endDate       DateTime
+  status        GoalStatus  @default(ACTIVE)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("savings_goals")
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  DANGER
+  SUCCESS
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+model Notification {
+  id          String            @id @default(uuid())
+  title       String
+  message     String
+  type        NotificationType  @default(INFO)
+  status      NotificationStatus @default(UNREAD)
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  relatedId   String?
+  relatedType String?
+  actionUrl   String?
+  createdAt   DateTime          @default(now())
+  readAt      DateTime?
+
+  @@index([userId, status])
+  @@map("notifications")
+}
+
+model Receipt {
+  id              String      @id @default(uuid())
+  filename        String
+  originalFilename String
+  url             String
+  mimeType        String
+  size            Int
+  transactionId   String?
+  transaction     Transaction? @relation(fields: [transactionId], references: [id])
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  uploadedAt      DateTime    @default(now())
+
+  @@index([userId])
+  @@index([transactionId])
+  @@map("receipts")
 }
 

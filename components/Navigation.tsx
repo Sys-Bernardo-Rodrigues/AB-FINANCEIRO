@@ -1,45 +1,133 @@
 'use client'
 
-import { Home, Plus, Target, Settings } from 'lucide-react'
+import { Home, Plus, Target, Settings, Repeat, BarChart3, PiggyBank, Calendar, Receipt, CreditCard, Bell, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Navigation() {
   const pathname = usePathname()
+  const [showMore, setShowMore] = useState(false)
 
-  const navItems = [
+  const mainNavItems = [
     { icon: Home, label: 'Início', href: '/' },
-    { icon: Target, label: 'Planejamentos', href: '/plans' },
+    { icon: Receipt, label: 'Transações', href: '/transactions' },
     { icon: Plus, label: 'Adicionar', href: '/add' },
-    { icon: Settings, label: 'Config', href: '/settings' },
+    { icon: Calendar, label: 'Calendário', href: '/calendar' },
+    { icon: Settings, label: 'Mais', href: '#', isButton: true },
   ]
 
+  const moreNavItems = [
+    { icon: Repeat, label: 'Recorrentes', href: '/recurring' },
+    { icon: CreditCard, label: 'Parcelamentos', href: '/installments' },
+    { icon: Target, label: 'Planejamentos', href: '/plans' },
+    { icon: PiggyBank, label: 'Metas', href: '/savings-goals' },
+    { icon: BarChart3, label: 'Relatórios', href: '/reports' },
+    { icon: Bell, label: 'Notificações', href: '/notifications' },
+    { icon: Receipt, label: 'Comprovantes', href: '/receipts' },
+    { icon: Calendar, label: 'Agendadas', href: '/scheduled' },
+    { icon: TrendingUp, label: 'Tendências', href: '/trends' },
+    { icon: Tag, label: 'Análise Categorias', href: '/categories/insights' },
+  ]
+
+  const isActive = (href: string) => {
+    if (href === '#') return false
+    return pathname === href || pathname.startsWith(href + '/')
+  }
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 z-50 shadow-lg safe-area-bottom">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="flex items-center justify-around py-2">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center gap-1 py-2 px-3 sm:px-4 rounded-xl transition-all touch-manipulation active:scale-95 ${
-                  isActive
-                    ? 'text-primary-600 bg-primary-50'
-                    : 'text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50'
-                }`}
-              >
-                <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'text-primary-600' : ''}`} />
-                <span className={`text-[10px] sm:text-xs font-medium ${isActive ? 'text-primary-600' : ''}`}>
-                  {item.label}
-                </span>
-              </Link>
-            )
-          })}
+    <>
+      {/* Menu Expandido (Overlay) */}
+      {showMore && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setShowMore(false)}
+          />
+          <div className="fixed bottom-20 left-0 right-0 z-50 px-4 pb-4">
+            <div className="bg-white rounded-2xl shadow-2xl border border-secondary-200 p-4 max-w-md mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-secondary-900">Mais Opções</h3>
+                <button
+                  onClick={() => setShowMore(false)}
+                  className="text-secondary-500 hover:text-secondary-700 p-1"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {moreNavItems.map((item) => {
+                  const Icon = item.icon
+                  const active = isActive(item.href)
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setShowMore(false)}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all touch-manipulation ${
+                        active
+                          ? 'bg-primary-50 text-primary-600 border-2 border-primary-200'
+                          : 'text-secondary-600 hover:bg-secondary-50 border-2 border-transparent'
+                      }`}
+                    >
+                      <Icon className="w-6 h-6" />
+                      <span className="text-xs font-medium">{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Menu Principal */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 z-50 shadow-lg safe-area-bottom">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex items-center justify-around py-2">
+            {mainNavItems.map((item) => {
+              const Icon = item.icon
+              const active = isActive(item.href)
+              
+              if (item.isButton) {
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => setShowMore(!showMore)}
+                    className={`flex flex-col items-center gap-1 py-2 px-3 sm:px-4 rounded-xl transition-all touch-manipulation active:scale-95 ${
+                      showMore
+                        ? 'text-primary-600 bg-primary-50'
+                        : 'text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 sm:w-6 sm:h-6`} />
+                    <span className={`text-[10px] sm:text-xs font-medium`}>
+                      {item.label}
+                    </span>
+                  </button>
+                )
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center gap-1 py-2 px-3 sm:px-4 rounded-xl transition-all touch-manipulation active:scale-95 ${
+                    active
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50'
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${active ? 'text-primary-600' : ''}`} />
+                  <span className={`text-[10px] sm:text-xs font-medium ${active ? 'text-primary-600' : ''}`}>
+                    {item.label}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   )
 }

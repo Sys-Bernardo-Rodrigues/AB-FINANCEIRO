@@ -11,6 +11,8 @@ const transactionSchema = z.object({
   categoryId: z.string().uuid('Categoria inválida'),
   date: z.string().optional(),
   userId: z.string().uuid('Usuário inválido').optional(),
+  isScheduled: z.boolean().optional(),
+  scheduledDate: z.string().optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -27,11 +29,44 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type')
     const allUsers = searchParams.get('allUsers') === 'true'
     const limit = parseInt(searchParams.get('limit') || '50')
+    const search = searchParams.get('search')
+    const categoryId = searchParams.get('categoryId')
+    const startDate = searchParams.get('startDate')
+    const endDate = searchParams.get('endDate')
+    const minAmount = searchParams.get('minAmount')
+    const maxAmount = searchParams.get('maxAmount')
 
     // Se allUsers for true, não filtrar por userId (mostrar todas)
     const where: any = allUsers ? {} : { userId: user.id }
     if (type) {
       where.type = type as 'INCOME' | 'EXPENSE'
+    }
+    if (search) {
+      where.description = {
+        contains: search,
+        mode: 'insensitive' as const,
+      }
+    }
+    if (categoryId) {
+      where.categoryId = categoryId
+    }
+    if (startDate || endDate) {
+      where.date = {}
+      if (startDate) {
+        where.date.gte = new Date(startDate)
+      }
+      if (endDate) {
+        where.date.lte = new Date(endDate)
+      }
+    }
+    if (minAmount || maxAmount) {
+      where.amount = {}
+      if (minAmount) {
+        where.amount.gte = parseFloat(minAmount)
+      }
+      if (maxAmount) {
+        where.amount.lte = parseFloat(maxAmount)
+      }
     }
 
     const transactions = await prisma.transaction.findMany({
@@ -95,15 +130,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const transaction = await prisma.transaction.create({
-      data: {
-        description: data.description,
-        amount: data.amount,
-        type: data.type,
-        categoryId: data.categoryId,
-        userId: targetUserId,
-        date: data.date ? new Date(data.date) : new Date(),
-      },
+        const transactionDate = data.date ? new Date(data.date) : new Date()
+        const isScheduled = data.isScheduled && data.scheduledDate && new Date(data.scheduledDate) > new Date()
+        
+        const transaction = await prisma.transaction.create({
+          data: {
+            description: data.description,
+            amount: data.amount,
+            type: data.type,
+            categoryId: data.categoryId,
+            userId: targetUserId,
+            date: transactionDate,
+            isScheduled: isScheduled || false,
+            scheduledDate: isScheduled && data.scheduledDate ? new Date(data.scheduledDate) : null,
+          },
       include: {
         category: true,
         user: {

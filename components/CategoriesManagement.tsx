@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Tag, Plus, Edit2, Trash2, X, Save, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
+import { Tag, Plus, Edit2, Trash2, X, Save, ArrowUpCircle, ArrowDownCircle, BarChart3 } from 'lucide-react'
+import Link from 'next/link'
 
 interface CategoryData {
   id: string
@@ -344,6 +345,13 @@ export default function CategoriesManagement() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                    <Link
+                      href={`/categories/${category.id}/insights`}
+                      className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors touch-manipulation"
+                      title="Ver insights"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                    </Link>
                     <button
                       onClick={() => handleEdit(category)}
                       className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors touch-manipulation"

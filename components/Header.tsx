@@ -1,7 +1,8 @@
 'use client'
 
-import { Wallet, LogOut, Menu } from 'lucide-react'
+import { Wallet, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import NotificationBell from './NotificationBell'
 
 export default function Header() {
   const { user, logout } = useAuth()
@@ -23,16 +24,17 @@ export default function Header() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {user && (
               <>
-                <div className="hidden lg:block text-right">
-                  <p className="text-sm font-semibold text-secondary-900">{user.name}</p>
+                <div className="hidden md:block text-right">
+                  <p className="text-sm font-medium text-secondary-900">{user.name}</p>
                   <p className="text-xs text-secondary-500">{user.email}</p>
                 </div>
+                <NotificationBell />
                 <button
                   onClick={logout}
-                  className="p-2.5 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50 active:bg-secondary-100 rounded-lg transition-all touch-manipulation"
+                  className="p-2.5 sm:p-2 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 active:bg-secondary-200 rounded-lg transition-colors touch-manipulation"
                   title="Sair"
                   aria-label="Sair"
                 >

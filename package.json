@@ -16,13 +16,18 @@
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "@types/formidable": "^3.4.6",
     "bcryptjs": "^2.4.3",
+    "date-fns": "^4.1.0",
+    "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.424.0",
     "next": "14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "lucide-react": "^0.424.0",
+    "recharts": "^3.6.0",
     "redis": "^4.7.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -44,4 +49,3 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }
-

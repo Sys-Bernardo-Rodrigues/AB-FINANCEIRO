@@ -26,6 +26,8 @@ export default function TransactionForm() {
   const [categoryId, setCategoryId] = useState('')
   const [userId, setUserId] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [isScheduled, setIsScheduled] = useState(false)
+  const [scheduledDate, setScheduledDate] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [users, setUsers] = useState<UserData[]>([])
   const [loading, setLoading] = useState(false)
@@ -88,8 +90,10 @@ export default function TransactionForm() {
           amount: parseFloat(amount),
           type,
           categoryId,
-          date,
+          date: isScheduled && scheduledDate ? scheduledDate : date,
           userId: userId || undefined,
+          isScheduled: isScheduled && scheduledDate ? true : false,
+          scheduledDate: isScheduled && scheduledDate ? scheduledDate : null,
         }),
       })
 
@@ -174,13 +178,37 @@ export default function TransactionForm() {
           <label className="block text-sm font-semibold text-secondary-700 mb-2">
             Data
           </label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-            required
-          />
+          <div className="space-y-3">
+            <input
+              type="date"
+              value={isScheduled ? scheduledDate : date}
+              onChange={(e) => {
+                if (isScheduled) {
+                  setScheduledDate(e.target.value)
+                } else {
+                  setDate(e.target.value)
+                }
+              }}
+              className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+              required
+            />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isScheduled}
+                onChange={(e) => {
+                  setIsScheduled(e.target.checked)
+                  if (e.target.checked) {
+                    setScheduledDate(date)
+                  }
+                }}
+                className="w-4 h-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
+              />
+              <span className="text-sm text-secondary-700">
+                Agendar para data futura
+              </span>
+            </label>
+          </div>
         </div>
 
         <div>

@@ -73,13 +73,22 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-              <Link
-                href="/categories/manage"
-                className="flex items-center justify-between w-full px-4 py-3 bg-success-50 hover:bg-success-100 border border-success-200 rounded-xl transition-colors group"
-              >
-                <span className="font-medium text-success-700">Abrir Gerenciador de Categorias</span>
-                <ArrowRight className="w-5 h-5 text-success-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              <div className="space-y-2">
+                <Link
+                  href="/categories/manage"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-success-50 hover:bg-success-100 border border-success-200 rounded-xl transition-colors group"
+                >
+                  <span className="font-medium text-success-700">Abrir Gerenciador de Categorias</span>
+                  <ArrowRight className="w-5 h-5 text-success-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/categories/insights"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-colors group"
+                >
+                  <span className="font-medium text-primary-700">Ver Análise de Categorias</span>
+                  <ArrowRight className="w-5 h-5 text-primary-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
 
             {/* Gerenciamento de Usuários */}

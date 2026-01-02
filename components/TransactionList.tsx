@@ -58,13 +58,14 @@ export default function TransactionList({ transactions: propTransactions }: Tran
     )
   }
 
-  if (transactions.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-12 bg-white rounded-xl border border-secondary-200 shadow-card">
-        <div className="text-secondary-500">Nenhuma transação encontrada</div>
-      </div>
-    )
-  }
+      if (transactions.length === 0) {
+        return (
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-xl border border-secondary-200 shadow-card">
+            <div className="text-secondary-500 mb-2">Nenhuma transação encontrada</div>
+            <div className="text-sm text-secondary-400">Tente ajustar os filtros de busca</div>
+          </div>
+        )
+      }
 
   return (
     <div className="space-y-3">
