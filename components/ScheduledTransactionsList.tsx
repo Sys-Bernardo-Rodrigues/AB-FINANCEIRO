@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { Calendar, Check, X, ArrowDownCircle, ArrowUpCircle, Clock } from 'lucide-react'
 import { formatCurrency, formatDateShort } from '@/lib/utils'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 interface Category {
   id: string
@@ -49,34 +52,53 @@ export default function ScheduledTransactionsList() {
       })
 
       if (response.ok) {
-        // Remover da lista
+        showToast('Transação confirmada com sucesso!', 'success')
         setTransactions(transactions.filter((t) => t.id !== id))
       } else {
         const error = await response.json()
-        alert(error.error || 'Erro ao confirmar transação')
+        showToast(error.error || 'Erro ao confirmar transação', 'error')
       }
     } catch (error) {
       console.error('Erro ao confirmar transação:', error)
-      alert('Erro ao confirmar transação')
+      showToast('Erro ao confirmar transação', 'error')
     }
   }
 
-  const handleCancel = async (id: string) => {
-    if (!confirm('Tem certeza que deseja cancelar esta transação agendada?')) {
-      return
-    }
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [transactionToDelete, setTransactionToDelete] = useState<ScheduledTransaction | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
+  const handleCancel = async (id: string) => {
+    const transaction = transactions.find(t => t.id === id)
+    if (transaction) {
+      setTransactionToDelete(transaction)
+      setDeleteModalOpen(true)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!transactionToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/transactions/${id}`, {
+      const response = await fetch(`/api/transactions/${transactionToDelete.id}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
-        setTransactions(transactions.filter((t) => t.id !== id))
+        showToast('Transação agendada cancelada com sucesso!', 'success')
+        setTransactions(transactions.filter((t) => t.id !== transactionToDelete.id))
+        setDeleteModalOpen(false)
+        setTransactionToDelete(null)
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao cancelar transação', 'error')
       }
     } catch (error) {
       console.error('Erro ao cancelar transação:', error)
-      alert('Erro ao cancelar transação')
+      showToast('Erro ao cancelar transação', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -191,6 +213,50 @@ export default function ScheduledTransactionsList() {
           </div>
         )
       })}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false)
+            setTransactionToDelete(null)
+          }
+        }}
+        title="Confirmar Cancelamento"
+        size="sm"
+      >
+        {transactionToDelete && (
+          <div className="space-y-4">
+            <p className="text-secondary-700">
+              Tem certeza que deseja cancelar a transação agendada <strong>"{transactionToDelete.description}"</strong>?
+            </p>
+            <p className="text-sm text-secondary-500">
+              Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={deleting}
+                fullWidth
+              >
+                Cancelar Transação
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDeleteModalOpen(false)
+                  setTransactionToDelete(null)
+                }}
+                disabled={deleting}
+                fullWidth
+              >
+                Manter
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

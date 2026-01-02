@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { Wallet, Mail, Lock, User } from 'lucide-react'
 import Link from 'next/link'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -19,12 +22,16 @@ export default function RegisterPage() {
     setError('')
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem')
+      const errorMessage = 'As senhas não coincidem'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
       return
     }
 
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres')
+      const errorMessage = 'A senha deve ter pelo menos 6 caracteres'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
       return
     }
 
@@ -32,8 +39,11 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password)
+      showToast('Conta criada com sucesso!', 'success')
     } catch (err: any) {
-      setError(err.message || 'Erro ao criar conta')
+      const errorMessage = err.message || 'Erro ao criar conta'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
@@ -52,73 +62,51 @@ export default function RegisterPage() {
 
         <div className="glass rounded-3xl shadow-elevated p-8 border border-secondary-200/50 backdrop-blur-xl animate-fade-in">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-secondary-700 mb-2">
-                Nome
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome"
-                  className="w-full pl-10 pr-4 py-3 bg-white/70 border border-secondary-300/50 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-                  required
-                />
-              </div>
-            </div>
+            <Input
+              label="Nome"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Seu nome"
+              leftIcon={<User className="w-5 h-5" />}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-semibold text-secondary-700 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  className="w-full pl-10 pr-4 py-3 bg-white/70 border border-secondary-300/50 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-                  required
-                />
-              </div>
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              leftIcon={<Mail className="w-5 h-5" />}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-semibold text-secondary-700 mb-2">
-                Senha
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-white/70 border border-secondary-300/50 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-                  required
-                />
-              </div>
-            </div>
+            <Input
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              leftIcon={<Lock className="w-5 h-5" />}
+              required
+              helperText="Mínimo de 6 caracteres"
+            />
 
-            <div>
-              <label className="block text-sm font-semibold text-secondary-700 mb-2">
-                Confirmar Senha
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-white/70 border border-secondary-300/50 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-                  required
-                />
-              </div>
-            </div>
+            <Input
+              label="Confirmar Senha"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              leftIcon={<Lock className="w-5 h-5" />}
+              required
+              error={
+                confirmPassword && password !== confirmPassword
+                  ? 'As senhas não coincidem'
+                  : undefined
+              }
+            />
 
             {error && (
               <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-xl text-sm">
@@ -126,13 +114,15 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
+              isLoading={loading}
+              variant="primary"
+              fullWidth
+              size="lg"
             >
-              {loading ? 'Criando conta...' : 'Criar Conta'}
-            </button>
+              Criar Conta
+            </Button>
           </form>
 
           <div className="mt-6 text-center">

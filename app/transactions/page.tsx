@@ -107,7 +107,10 @@ export default function TransactionsPage() {
             </div>
           ) : (
             <div className="mt-6">
-              <TransactionList transactions={transactions} />
+              <TransactionList 
+                transactions={transactions} 
+                onDelete={() => fetchTransactions()}
+              />
             </div>
           )}
         </main>

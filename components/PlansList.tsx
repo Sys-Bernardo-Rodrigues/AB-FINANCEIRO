@@ -4,11 +4,17 @@ import { useEffect, useState } from 'react'
 import { Target, Plus } from 'lucide-react'
 import PlanCard from './PlanCard'
 import Link from 'next/link'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 export default function PlansList() {
   const [plans, setPlans] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [planToDelete, setPlanToDelete] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchPlans()
@@ -27,6 +33,37 @@ export default function PlansList() {
       console.error('Erro ao buscar planejamentos:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteClick = (plan: any) => {
+    setPlanToDelete(plan)
+    setDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!planToDelete) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/plans/${planToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        showToast('Planejamento deletado com sucesso!', 'success')
+        fetchPlans()
+        setDeleteModalOpen(false)
+        setPlanToDelete(null)
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao deletar planejamento', 'error')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar planejamento:', error)
+      showToast('Erro ao deletar planejamento', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -95,10 +132,58 @@ export default function PlansList() {
       ) : (
         <div className="space-y-3">
           {plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
+            <PlanCard 
+              key={plan.id} 
+              plan={plan}
+              onDelete={() => handleDeleteClick(plan)}
+            />
           ))}
         </div>
       )}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false)
+            setPlanToDelete(null)
+          }
+        }}
+        title="Confirmar Exclusão"
+        size="sm"
+      >
+        {planToDelete && (
+          <div className="space-y-4">
+            <p className="text-secondary-700">
+              Tem certeza que deseja deletar o planejamento <strong>"{planToDelete.name}"</strong>?
+            </p>
+            <p className="text-sm text-secondary-500">
+              Esta ação não pode ser desfeita. Todas as transações relacionadas serão mantidas.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={deleting}
+                fullWidth
+              >
+                Deletar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDeleteModalOpen(false)
+                  setPlanToDelete(null)
+                }}
+                disabled={deleting}
+                fullWidth
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

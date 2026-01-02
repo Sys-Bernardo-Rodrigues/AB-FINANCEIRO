@@ -83,6 +83,11 @@ export async function GET(request: NextRequest) {
             email: true,
           },
         },
+        receipts: {
+          orderBy: {
+            uploadedAt: 'desc',
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -197,6 +202,11 @@ export async function POST(request: NextRequest) {
             },
             plan: true,
             installment: true,
+            receipts: {
+              orderBy: {
+                uploadedAt: 'desc',
+              },
+            },
           },
         })
 

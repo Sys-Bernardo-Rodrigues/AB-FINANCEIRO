@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Plus, Target, Settings, Repeat, BarChart3, PiggyBank, Calendar, Receipt, CreditCard, Bell, TrendingUp, Tag } from 'lucide-react'
+import { Home, Plus, Target, Settings, Repeat, BarChart3, PiggyBank, Calendar, Receipt, CreditCard, Bell, TrendingUp, Tag, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -18,6 +18,7 @@ export default function Navigation() {
   ]
 
   const moreNavItems = [
+    { icon: Users, label: 'Usuários', href: '/users/manage' },
     { icon: Repeat, label: 'Recorrentes', href: '/recurring' },
     { icon: CreditCard, label: 'Parcelamentos', href: '/installments' },
     { icon: Target, label: 'Planejamentos', href: '/plans' },

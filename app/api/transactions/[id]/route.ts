@@ -30,7 +30,14 @@ export async function GET(
         id: params.id,
         userId: user.id,
       },
-      include: { category: true },
+      include: { 
+        category: true,
+        receipts: {
+          orderBy: {
+            uploadedAt: 'desc',
+          },
+        },
+      },
     })
 
     if (!transaction) {
@@ -107,6 +114,11 @@ export async function PUT(
       include: {
         category: true,
         plan: true,
+        receipts: {
+          orderBy: {
+            uploadedAt: 'desc',
+          },
+        },
       },
     })
 

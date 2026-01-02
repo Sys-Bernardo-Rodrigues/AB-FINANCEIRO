@@ -5,6 +5,9 @@ import { Target, Plus } from 'lucide-react'
 import SavingsGoalCard from './SavingsGoalCard'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 export default function SavingsGoalsList() {
   const router = useRouter()
@@ -40,28 +43,53 @@ export default function SavingsGoalsList() {
         body: JSON.stringify({ amount }),
       })
       if (response.ok) {
+        showToast('Valor adicionado à meta com sucesso!', 'success')
         fetchGoals()
         router.refresh()
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao adicionar valor', 'error')
       }
     } catch (error) {
       console.error('Erro ao adicionar valor:', error)
+      showToast('Erro ao adicionar valor', 'error')
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja deletar esta meta de economia?')) {
-      return
-    }
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [goalToDelete, setGoalToDelete] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
+  const handleDelete = async (id: string) => {
+    const goal = goals.find(g => g.id === id)
+    if (goal) {
+      setGoalToDelete(goal)
+      setDeleteModalOpen(true)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!goalToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/savings-goals/${id}`, {
+      const response = await fetch(`/api/savings-goals/${goalToDelete.id}`, {
         method: 'DELETE',
       })
       if (response.ok) {
+        showToast('Meta de economia deletada com sucesso!', 'success')
         fetchGoals()
+        setDeleteModalOpen(false)
+        setGoalToDelete(null)
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao deletar meta', 'error')
       }
     } catch (error) {
       console.error('Erro ao deletar meta:', error)
+      showToast('Erro ao deletar meta', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -139,6 +167,50 @@ export default function SavingsGoalsList() {
           ))}
         </div>
       )}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false)
+            setGoalToDelete(null)
+          }
+        }}
+        title="Confirmar Exclusão"
+        size="sm"
+      >
+        {goalToDelete && (
+          <div className="space-y-4">
+            <p className="text-secondary-700">
+              Tem certeza que deseja deletar a meta <strong>"{goalToDelete.name}"</strong>?
+            </p>
+            <p className="text-sm text-secondary-500">
+              Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={deleting}
+                fullWidth
+              >
+                Deletar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDeleteModalOpen(false)
+                  setGoalToDelete(null)
+                }}
+                disabled={deleting}
+                fullWidth
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

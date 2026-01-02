@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, Calendar, Target, CreditCard, Repeat, BarChart3, PiggyBank, CalendarDays } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, Calendar, Target, CreditCard, Repeat, BarChart3, PiggyBank, CalendarDays, ChevronLeft, ChevronRight, DollarSign, TrendingDown as TrendingDownIcon } from 'lucide-react'
 import TransactionList from './TransactionList'
 import BalanceCard from './BalanceCard'
 import InstallmentCard from './InstallmentCard'
@@ -10,12 +10,27 @@ import RecurringTransactionCard from './RecurringTransactionCard'
 import SavingsGoalCard from './SavingsGoalCard'
 import { formatCurrency, formatDateShort } from '@/lib/utils'
 import Link from 'next/link'
+import Skeleton, { SkeletonBalanceCard, SkeletonTransaction } from '@/components/ui/Skeleton'
 
 interface DashboardData {
   balance: number
   income: number
   expenses: number
   recentTransactions: any[]
+  month: number
+  year: number
+  daysInMonth: number
+  daysRemainingInMonth: number
+  avgDailyIncome: number
+  avgDailyExpense: number
+  previousMonth: {
+    income: number
+    expenses: number
+  }
+  variations: {
+    income: number
+    expense: number
+  }
   metrics?: {
     maxIncome: number
     maxExpense: number
@@ -37,6 +52,8 @@ export default function Dashboard() {
   const [savingsGoals, setSavingsGoals] = useState<any[]>([])
   const [scheduledTransactions, setScheduledTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
   useEffect(() => {
       fetchDashboardData()
@@ -45,11 +62,11 @@ export default function Dashboard() {
       fetchRecurringTransactions()
       fetchSavingsGoals()
       fetchScheduledTransactions()
-    }, [])
+    }, [selectedMonth, selectedYear])
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/dashboard')
+      const response = await fetch(`/api/dashboard?month=${selectedMonth}&year=${selectedYear}`)
       if (response.ok) {
         const dashboardData = await response.json()
         setData(dashboardData)
@@ -59,6 +76,42 @@ export default function Dashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handlePreviousMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12)
+      setSelectedYear(selectedYear - 1)
+    } else {
+      setSelectedMonth(selectedMonth - 1)
+    }
+  }
+
+  const handleNextMonth = () => {
+    const now = new Date()
+    const currentMonth = now.getMonth() + 1
+    const currentYear = now.getFullYear()
+    
+    if (selectedMonth === 12) {
+      if (selectedYear < currentYear) {
+        setSelectedMonth(1)
+        setSelectedYear(selectedYear + 1)
+      }
+    } else {
+      if (selectedYear === currentYear && selectedMonth < currentMonth) {
+        setSelectedMonth(selectedMonth + 1)
+      } else if (selectedYear < currentYear) {
+        setSelectedMonth(selectedMonth + 1)
+      }
+    }
+  }
+
+  const getMonthName = (month: number) => {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ]
+    return months[month - 1]
   }
 
   const fetchInstallments = async () => {
@@ -129,10 +182,16 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="relative">
-          <div className="w-12 h-12 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+      <div className="space-y-6 animate-fade-in">
+        <SkeletonBalanceCard />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <Skeleton variant="card" height={120} />
+          <Skeleton variant="card" height={120} />
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonTransaction key={i} />
+          ))}
         </div>
       </div>
     )
@@ -146,12 +205,57 @@ export default function Dashboard() {
     )
   }
 
+  const now = new Date()
+  const isCurrentMonth = selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()
+
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 animate-fade-in">
-      {/* Cards de Resumo */}
+      {/* Header com Seletor de Mês */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePreviousMonth}
+            className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-manipulation"
+            aria-label="Mês anterior"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-secondary-900">
+              {getMonthName(selectedMonth)} {selectedYear}
+            </h2>
+            {isCurrentMonth && (
+              <p className="text-xs text-secondary-500 mt-1">
+                {data?.daysRemainingInMonth} dias restantes no mês
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleNextMonth}
+            disabled={selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()}
+            className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Próximo mês"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+        {!isCurrentMonth && (
+          <button
+            onClick={() => {
+              setSelectedMonth(now.getMonth() + 1)
+              setSelectedYear(now.getFullYear())
+            }}
+            className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
+          >
+            Mês Atual
+          </button>
+        )}
+      </div>
+
+      {/* Cards de Resumo do Mês */}
       <div className="grid grid-cols-1 gap-4 sm:gap-6">
         <BalanceCard 
-          title="Saldo Total"
+          title={`Saldo de ${getMonthName(selectedMonth)}`}
           amount={data.balance}
           icon={data.balance < 0 ? <TrendingDown className="w-6 h-6" /> : <TrendingUp className="w-6 h-6" />}
           type={data.balance < 0 ? "negative" : "balance"}
@@ -159,18 +263,84 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <BalanceCard 
-          title="Receitas"
-          amount={data.income}
-          icon={<ArrowUpCircle className="w-5 h-5" />}
-          type="income"
-        />
-        <BalanceCard 
-          title="Despesas"
-          amount={data.expenses}
-          icon={<ArrowDownCircle className="w-5 h-5" />}
-          type="expense"
-        />
+        <div className="relative">
+          <BalanceCard 
+            title="Receitas do Mês"
+            amount={data.income}
+            icon={<ArrowUpCircle className="w-5 h-5" />}
+            type="income"
+          />
+          {data.variations.income !== 0 && (
+            <div className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
+              data.variations.income > 0 
+                ? 'bg-success-100 text-success-700' 
+                : 'bg-danger-100 text-danger-700'
+            }`}>
+              {data.variations.income > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDownIcon className="w-3 h-3" />}
+              {Math.abs(data.variations.income).toFixed(1)}%
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <BalanceCard 
+            title="Despesas do Mês"
+            amount={data.expenses}
+            icon={<ArrowDownCircle className="w-5 h-5" />}
+            type="expense"
+          />
+          {data.variations.expense !== 0 && (
+            <div className={`absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
+              data.variations.expense < 0 
+                ? 'bg-success-100 text-success-700' 
+                : 'bg-danger-100 text-danger-700'
+            }`}>
+              {data.variations.expense < 0 ? <TrendingDownIcon className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+              {Math.abs(data.variations.expense).toFixed(1)}%
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Estatísticas do Mês */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
+          <div className="flex items-center gap-2 mb-2">
+            <DollarSign className="w-4 h-4 text-secondary-500" />
+            <span className="text-xs text-secondary-600">Média Diária Receitas</span>
+          </div>
+          <p className="text-lg font-bold text-success-600">
+            {formatCurrency(data.avgDailyIncome)}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingDownIcon className="w-4 h-4 text-secondary-500" />
+            <span className="text-xs text-secondary-600">Média Diária Despesas</span>
+          </div>
+          <p className="text-lg font-bold text-danger-600">
+            {formatCurrency(data.avgDailyExpense)}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="w-4 h-4 text-secondary-500" />
+            <span className="text-xs text-secondary-600">Transações</span>
+          </div>
+          <p className="text-lg font-bold text-secondary-900">
+            {data.metrics?.totalTransactions || 0}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-4 h-4 text-secondary-500" />
+            <span className="text-xs text-secondary-600">Taxa de Poupança</span>
+          </div>
+          <p className={`text-lg font-bold ${
+            (data.metrics?.savingsRate || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
+          }`}>
+            {(data.metrics?.savingsRate || 0) >= 0 ? '+' : ''}{(data.metrics?.savingsRate || 0).toFixed(1)}%
+          </p>
+        </div>
       </div>
 
       {/* Transações Agendadas Próximas */}

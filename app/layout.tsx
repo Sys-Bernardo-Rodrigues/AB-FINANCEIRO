@@ -6,6 +6,7 @@ import PWARegister from '@/components/PWARegister'
 import OfflineIndicator from '@/components/OfflineIndicator'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 import IOSMetaTags from '@/components/IOSMetaTags'
+import { ToastContainer } from '@/components/ui/Toast'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -46,6 +47,7 @@ export default function RootLayout({
           <PWARegister />
           <OfflineIndicator />
           <PWAInstallPrompt />
+          <ToastContainer />
         </AuthProvider>
       </body>
     </html>

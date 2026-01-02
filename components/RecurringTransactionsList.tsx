@@ -5,6 +5,9 @@ import { Repeat, Plus } from 'lucide-react'
 import RecurringTransactionCard from './RecurringTransactionCard'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 export default function RecurringTransactionsList() {
   const router = useRouter()
@@ -42,11 +45,16 @@ export default function RecurringTransactionsList() {
         method: 'POST',
       })
       if (response.ok) {
+        showToast('Transação recorrente executada com sucesso!', 'success')
         fetchRecurringTransactions()
         router.refresh()
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao executar transação', 'error')
       }
     } catch (error) {
       console.error('Erro ao executar transação recorrente:', error)
+      showToast('Erro ao executar transação recorrente', 'error')
     }
   }
 
@@ -61,27 +69,57 @@ export default function RecurringTransactionsList() {
         body: JSON.stringify({ isActive: !transaction.isActive }),
       })
       if (response.ok) {
+        showToast(
+          transaction.isActive 
+            ? 'Transação recorrente pausada' 
+            : 'Transação recorrente ativada',
+          'success'
+        )
         fetchRecurringTransactions()
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao alterar status', 'error')
       }
     } catch (error) {
       console.error('Erro ao alterar status:', error)
+      showToast('Erro ao alterar status', 'error')
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja deletar esta transação recorrente?')) {
-      return
-    }
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [transactionToDelete, setTransactionToDelete] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
+  const handleDelete = async (id: string) => {
+    const transaction = recurringTransactions.find(t => t.id === id)
+    if (transaction) {
+      setTransactionToDelete(transaction)
+      setDeleteModalOpen(true)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!transactionToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/recurring-transactions/${id}`, {
+      const response = await fetch(`/api/recurring-transactions/${transactionToDelete.id}`, {
         method: 'DELETE',
       })
       if (response.ok) {
+        showToast('Transação recorrente deletada com sucesso!', 'success')
         fetchRecurringTransactions()
+        setDeleteModalOpen(false)
+        setTransactionToDelete(null)
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao deletar transação recorrente', 'error')
       }
     } catch (error) {
       console.error('Erro ao deletar transação recorrente:', error)
+      showToast('Erro ao deletar transação recorrente', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -161,6 +199,50 @@ export default function RecurringTransactionsList() {
           ))}
         </div>
       )}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false)
+            setTransactionToDelete(null)
+          }
+        }}
+        title="Confirmar Exclusão"
+        size="sm"
+      >
+        {transactionToDelete && (
+          <div className="space-y-4">
+            <p className="text-secondary-700">
+              Tem certeza que deseja deletar a transação recorrente <strong>"{transactionToDelete.description}"</strong>?
+            </p>
+            <p className="text-sm text-secondary-500">
+              Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={deleting}
+                fullWidth
+              >
+                Deletar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDeleteModalOpen(false)
+                  setTransactionToDelete(null)
+                }}
+                disabled={deleting}
+                fullWidth
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

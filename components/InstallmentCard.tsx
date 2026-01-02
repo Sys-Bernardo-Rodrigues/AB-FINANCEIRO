@@ -1,6 +1,6 @@
 'use client'
 
-import { CreditCard, Calendar } from 'lucide-react'
+import { CreditCard, Calendar, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
 interface InstallmentCardProps {
@@ -13,15 +13,16 @@ interface InstallmentCardProps {
     category: { name: string }
     startDate: string | Date
   }
+  onDelete?: () => void
 }
 
-export default function InstallmentCard({ installment }: InstallmentCardProps) {
+export default function InstallmentCard({ installment, onDelete }: InstallmentCardProps) {
   const progress = (installment.currentInstallment / installment.installments) * 100
   const remaining = installment.installments - installment.currentInstallment
   const installmentAmount = installment.totalAmount / installment.installments
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-secondary-200 shadow-card hover:shadow-card-hover transition-all">
+    <div className="bg-white rounded-xl p-5 border border-secondary-200 shadow-card hover:shadow-card-hover transition-all group">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-secondary-900 mb-1 truncate">{installment.description}</h3>
@@ -34,9 +35,21 @@ export default function InstallmentCard({ installment }: InstallmentCardProps) {
             </span>
           </div>
         </div>
-        <div className="text-right flex-shrink-0 ml-3">
-          <p className="font-bold text-danger-600">{formatCurrency(installmentAmount)}</p>
-          <p className="text-xs text-secondary-500">por parcela</p>
+        <div className="flex items-start gap-2">
+          <div className="text-right flex-shrink-0">
+            <p className="font-bold text-danger-600">{formatCurrency(installmentAmount)}</p>
+            <p className="text-xs text-secondary-500">por parcela</p>
+          </div>
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              className="p-2 text-secondary-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl transition-all duration-200 opacity-0 group-hover:opacity-100 touch-manipulation"
+              title="Deletar parcelamento"
+              aria-label="Deletar parcelamento"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 

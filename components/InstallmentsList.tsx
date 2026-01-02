@@ -4,11 +4,17 @@ import { useEffect, useState } from 'react'
 import { CreditCard, Plus } from 'lucide-react'
 import InstallmentCard from './InstallmentCard'
 import Link from 'next/link'
+import Modal from '@/components/ui/Modal'
+import Button from '@/components/ui/Button'
+import { showToast } from '@/components/ui/Toast'
 
 export default function InstallmentsList() {
   const [installments, setInstallments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [installmentToDelete, setInstallmentToDelete] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchInstallments()
@@ -37,9 +43,42 @@ export default function InstallmentsList() {
       })
       if (response.ok) {
         fetchInstallments()
+        showToast('Parcela criada com sucesso!', 'success')
       }
     } catch (error) {
       console.error('Erro ao criar próxima parcela:', error)
+      showToast('Erro ao criar parcela', 'error')
+    }
+  }
+
+  const handleDeleteClick = (installment: any) => {
+    setInstallmentToDelete(installment)
+    setDeleteModalOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!installmentToDelete) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/installments/${installmentToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        showToast('Parcelamento deletado com sucesso!', 'success')
+        fetchInstallments()
+        setDeleteModalOpen(false)
+        setInstallmentToDelete(null)
+      } else {
+        const data = await response.json()
+        showToast(data.error || 'Erro ao deletar parcelamento', 'error')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar parcelamento:', error)
+      showToast('Erro ao deletar parcelamento', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -109,7 +148,10 @@ export default function InstallmentsList() {
         <div className="space-y-3">
           {installments.map((installment) => (
             <div key={installment.id}>
-              <InstallmentCard installment={installment} />
+              <InstallmentCard 
+                installment={installment} 
+                onDelete={() => handleDeleteClick(installment)}
+              />
               {installment.status === 'ACTIVE' &&
                 installment.currentInstallment < installment.installments && (
                   <button
@@ -123,6 +165,50 @@ export default function InstallmentsList() {
           ))}
         </div>
       )}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteModalOpen(false)
+            setInstallmentToDelete(null)
+          }
+        }}
+        title="Confirmar Exclusão"
+        size="sm"
+      >
+        {installmentToDelete && (
+          <div className="space-y-4">
+            <p className="text-secondary-700">
+              Tem certeza que deseja deletar o parcelamento <strong>"{installmentToDelete.description}"</strong>?
+            </p>
+            <p className="text-sm text-secondary-500">
+              Esta ação não pode ser desfeita. Todas as parcelas relacionadas serão mantidas.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="danger"
+                onClick={handleDeleteConfirm}
+                isLoading={deleting}
+                fullWidth
+              >
+                Deletar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDeleteModalOpen(false)
+                  setInstallmentToDelete(null)
+                }}
+                disabled={deleting}
+                fullWidth
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }
