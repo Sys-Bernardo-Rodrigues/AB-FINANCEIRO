@@ -212,7 +212,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                 style={{ fontSize: '12px' }}
               />
               <Tooltip
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
                 labelFormatter={(label) => formatDate(label)}
                 contentStyle={{
                   backgroundColor: '#fff',
@@ -255,7 +255,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                 style={{ fontSize: '12px' }}
               />
               <Tooltip
-                formatter={(value: number) => formatCurrency(value)}
+                formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
                 labelFormatter={(label) => formatMonth(label)}
                 contentStyle={{
                   backgroundColor: '#fff',
@@ -286,7 +286,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="amount"
@@ -296,7 +296,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
                   contentStyle={{
                     backgroundColor: '#fff',
                     border: '1px solid #e2e8f0',
@@ -337,7 +337,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="amount"
@@ -347,7 +347,7 @@ export default function ReportsDashboard({ onDateRangeChange }: ReportsDashboard
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : ''}
                   contentStyle={{
                     backgroundColor: '#fff',
                     border: '1px solid #e2e8f0',

@@ -105,17 +105,19 @@ export async function POST(request: NextRequest) {
 
     // Criar categorias padrão para o novo usuário
     const defaultCategories = [
-      { name: 'Salário', description: 'Rendimento do trabalho', type: 'INCOME' },
-      { name: 'Freelance', description: 'Trabalhos freelancer', type: 'INCOME' },
-      { name: 'Alimentação', description: 'Gastos com comida', type: 'EXPENSE' },
-      { name: 'Transporte', description: 'Gastos com transporte', type: 'EXPENSE' },
-      { name: 'Utilidades', description: 'Contas de água, luz, internet', type: 'EXPENSE' },
-      { name: 'Lazer', description: 'Gastos com entretenimento', type: 'EXPENSE' },
+      { name: 'Salário', description: 'Rendimento do trabalho', type: 'INCOME' as const },
+      { name: 'Freelance', description: 'Trabalhos freelancer', type: 'INCOME' as const },
+      { name: 'Alimentação', description: 'Gastos com comida', type: 'EXPENSE' as const },
+      { name: 'Transporte', description: 'Gastos com transporte', type: 'EXPENSE' as const },
+      { name: 'Utilidades', description: 'Contas de água, luz, internet', type: 'EXPENSE' as const },
+      { name: 'Lazer', description: 'Gastos com entretenimento', type: 'EXPENSE' as const },
     ]
 
     await prisma.category.createMany({
       data: defaultCategories.map(cat => ({
-        ...cat,
+        name: cat.name,
+        description: cat.description,
+        type: cat.type,
         userId: newUser.id,
       })),
     })

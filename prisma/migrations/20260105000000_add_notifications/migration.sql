@@ -27,3 +27,5 @@ CREATE INDEX "notifications_userId_status_idx" ON "notifications"("userId", "sta
 -- AddForeignKey
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+
+

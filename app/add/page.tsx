@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
@@ -14,7 +14,7 @@ import SavingsGoalForm from '@/components/SavingsGoalForm'
 
 type FormType = 'transaction' | 'installment' | 'plan' | 'recurring' | 'savings-goal'
 
-export default function AddPage() {
+function AddPageContent() {
   const searchParams = useSearchParams()
   const [formType, setFormType] = useState<FormType>('transaction')
 
@@ -108,5 +108,28 @@ export default function AddPage() {
         <Navigation />
       </div>
     </AuthGuard>
+  )
+}
+
+export default function AddPage() {
+  return (
+    <Suspense fallback={
+      <AuthGuard>
+        <div className="min-h-screen pb-20 sm:pb-24">
+          <Header />
+          <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="flex items-center justify-center py-12">
+              <div className="relative">
+                <div className="w-12 h-12 border-4 border-secondary-200 rounded-full"></div>
+                <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+              </div>
+            </div>
+          </main>
+          <Navigation />
+        </div>
+      </AuthGuard>
+    }>
+      <AddPageContent />
+    </Suspense>
   )
 }

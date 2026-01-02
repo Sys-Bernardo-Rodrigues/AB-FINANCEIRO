@@ -27,3 +27,5 @@ ALTER TABLE "recurring_transactions" ADD CONSTRAINT "recurring_transactions_cate
 -- AddForeignKey
 ALTER TABLE "recurring_transactions" ADD CONSTRAINT "recurring_transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+
+

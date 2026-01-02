@@ -42,7 +42,6 @@ model Category {
   installments Installment[]
   plans       Plan[]
   recurringTransactions RecurringTransaction[]
-  receipts    Receipt[]
 
   @@unique([name, userId])
   @@map("categories")
