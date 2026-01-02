@@ -147,9 +147,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 animate-fade-in">
       {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
         <BalanceCard 
           title="Saldo Total"
           amount={data.balance}
@@ -158,7 +158,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <BalanceCard 
           title="Receitas"
           amount={data.income}
@@ -233,7 +233,7 @@ export default function Dashboard() {
               Ver todas →
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             {recurringTransactions.map((transaction) => (
               <RecurringTransactionCard key={transaction.id} recurringTransaction={transaction} />
             ))}
@@ -243,17 +243,17 @@ export default function Dashboard() {
 
       {/* Metas de Economia Ativas */}
       {savingsGoals.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-              <PiggyBank className="w-5 h-5 text-primary-600" />
+        <div className="animate-slide-up">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
               Metas de Economia
             </h2>
-            <Link href="/savings-goals" className="text-sm text-primary-600 hover:text-primary-700 font-semibold">
+            <Link href="/savings-goals" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
               Ver todas →
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             {savingsGoals.map((goal) => (
               <SavingsGoalCard key={goal.id} goal={goal} />
             ))}
@@ -263,17 +263,17 @@ export default function Dashboard() {
 
       {/* Parcelamentos Ativos */}
       {installments.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary-600" />
+        <div className="animate-slide-up">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
               Parcelamentos Ativos
             </h2>
-            <Link href="/installments" className="text-sm text-primary-600 hover:text-primary-700 font-semibold">
+            <Link href="/installments" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
               Ver todos →
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             {installments.map((installment) => (
               <InstallmentCard key={installment.id} installment={installment} />
             ))}
@@ -283,17 +283,17 @@ export default function Dashboard() {
 
       {/* Planejamentos Ativos */}
       {plans.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-600" />
+        <div className="animate-slide-up">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
               Planejamentos
             </h2>
-            <Link href="/plans" className="text-sm text-primary-600 hover:text-primary-700 font-semibold">
+            <Link href="/plans" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
               Ver todos →
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             {plans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} />
             ))}
@@ -308,7 +308,7 @@ export default function Dashboard() {
             <Target className="w-5 h-5 text-primary-600" />
             Métricas e Insights
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <div className="text-center p-4 bg-secondary-50 rounded-xl">
               <div className="text-xs text-secondary-600 mb-1">Taxa de Poupança</div>
               <div className={`text-xl font-bold ${data.metrics.savingsRate >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
@@ -368,10 +368,10 @@ export default function Dashboard() {
       )}
 
       {/* Links Rápidos */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Link
           href="/calendar"
-          className="bg-gradient-primary rounded-xl p-5 text-white shadow-card hover:shadow-card-hover transition-all"
+          className="gradient-primary rounded-3xl p-6 sm:p-8 text-white shadow-card hover:shadow-card-hover transition-all duration-300 hover-lift group"
         >
           <div className="flex items-center gap-3 mb-2">
             <CalendarDays className="w-6 h-6" />
@@ -383,7 +383,7 @@ export default function Dashboard() {
         </Link>
         <Link
           href="/reports"
-          className="bg-gradient-primary rounded-xl p-5 text-white shadow-card hover:shadow-card-hover transition-all"
+          className="gradient-primary rounded-3xl p-6 sm:p-8 text-white shadow-card hover:shadow-card-hover transition-all duration-300 hover-lift group"
         >
           <div className="flex items-center gap-3 mb-2">
             <BarChart3 className="w-6 h-6" />
@@ -395,7 +395,7 @@ export default function Dashboard() {
         </Link>
         <Link
           href="/trends"
-          className="bg-gradient-success rounded-xl p-5 text-white shadow-card hover:shadow-card-hover transition-all"
+          className="gradient-success rounded-3xl p-6 sm:p-8 text-white shadow-card hover:shadow-card-hover transition-all duration-300 hover-lift group"
         >
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="w-6 h-6" />
@@ -408,13 +408,13 @@ export default function Dashboard() {
       </div>
 
       {/* Lista de Transações */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary-600" />
+      <div className="animate-slide-up">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
             Transações Recentes
           </h2>
-          <Link href="/transactions" className="text-sm text-primary-600 hover:text-primary-700 font-semibold">
+          <Link href="/transactions" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
             Ver todas →
           </Link>
         </div>

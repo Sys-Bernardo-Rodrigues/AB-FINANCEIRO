@@ -21,7 +21,7 @@ export default function ReceiptsPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-secondary-50 pb-20 sm:pb-24">
+      <div className="min-h-screen pb-20 sm:pb-24">
         <Header />
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex items-center justify-between mb-6">
@@ -30,7 +30,7 @@ export default function ReceiptsPage() {
             </h1>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 border border-secondary-200 shadow-card mb-6">
+          <div className="glass rounded-3xl p-4 sm:p-6 border border-secondary-200/50 shadow-card mb-6 backdrop-blur-xl">
             <h2 className="text-lg font-semibold text-secondary-900 mb-4">
               Enviar Novo Comprovante
             </h2>
@@ -47,4 +47,3 @@ export default function ReceiptsPage() {
     </AuthGuard>
   )
 }
-

@@ -60,7 +60,7 @@ export default function TransactionList({ transactions: propTransactions }: Tran
 
       if (transactions.length === 0) {
         return (
-          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-xl border border-secondary-200 shadow-card">
+          <div className="flex flex-col items-center justify-center py-12 glass rounded-3xl border border-secondary-200/50 shadow-card backdrop-blur-xl">
             <div className="text-secondary-500 mb-2">Nenhuma transação encontrada</div>
             <div className="text-sm text-secondary-400">Tente ajustar os filtros de busca</div>
           </div>
@@ -74,11 +74,11 @@ export default function TransactionList({ transactions: propTransactions }: Tran
         return (
           <div
             key={transaction.id}
-            className="bg-white rounded-xl p-4 border border-secondary-200 hover:border-primary-300 hover:shadow-card-hover transition-all flex items-center justify-between"
+            className="glass rounded-2xl p-4 sm:p-5 border border-secondary-200/50 hover:border-primary-300 hover:shadow-card-hover transition-all duration-300 flex items-center justify-between hover-lift backdrop-blur-xl animate-fade-in"
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${
                   isIncome 
                     ? 'bg-success-50 text-success-600' 
                     : 'bg-danger-50 text-danger-600'

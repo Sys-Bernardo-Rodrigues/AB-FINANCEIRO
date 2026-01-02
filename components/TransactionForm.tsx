@@ -114,16 +114,16 @@ export default function TransactionForm() {
 
   return (
     <div className="space-y-5">
-      {/* Seletor de Tipo */}
-      <div className="bg-white rounded-xl p-1 flex gap-2 border border-secondary-200 shadow-card">
+          {/* Seletor de Tipo */}
+          <div className="glass rounded-3xl p-2 flex gap-2 border border-secondary-200/50 shadow-card backdrop-blur-xl">
         <button
           type="button"
           onClick={() => setType('EXPENSE')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all touch-manipulation ${
-            type === 'EXPENSE'
-              ? 'bg-danger-50 text-danger-700 border-2 border-danger-200'
-              : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50'
-          }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 touch-manipulation hover-lift ${
+                type === 'EXPENSE'
+                  ? 'bg-danger-50 text-danger-700 border-2 border-danger-300 shadow-md'
+                  : 'text-secondary-600 hover:text-danger-600 hover:bg-danger-50/50'
+              }`}
         >
           <ArrowDownCircle className="w-5 h-5" />
           Despesa
@@ -131,32 +131,32 @@ export default function TransactionForm() {
         <button
           type="button"
           onClick={() => setType('INCOME')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all touch-manipulation ${
-            type === 'INCOME'
-              ? 'bg-success-50 text-success-700 border-2 border-success-200'
-              : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50'
-          }`}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-200 touch-manipulation hover-lift ${
+                type === 'INCOME'
+                  ? 'bg-success-50 text-success-700 border-2 border-success-300 shadow-md'
+                  : 'text-secondary-600 hover:text-success-600 hover:bg-success-50/50'
+              }`}
         >
           <ArrowUpCircle className="w-5 h-5" />
           Receita
         </button>
       </div>
 
-      {/* Formulário */}
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-semibold text-secondary-700 mb-2">
-            Descrição
-          </label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ex: Supermercado, Salário..."
-            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
-            required
-          />
-        </div>
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+            <div>
+              <label className="block text-sm sm:text-base font-semibold text-secondary-700 mb-2 sm:mb-3">
+                Descrição
+              </label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Ex: Supermercado, Salário..."
+                className="w-full px-4 sm:px-5 py-3 sm:py-4 glass border border-secondary-300/50 rounded-2xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-base sm:text-lg backdrop-blur-xl"
+                required
+              />
+            </div>
 
         <div>
           <label className="block text-sm font-semibold text-secondary-700 mb-2">
@@ -169,7 +169,7 @@ export default function TransactionForm() {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0,00"
-            className="w-full px-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+                className="w-full px-4 sm:px-5 py-3 sm:py-4 glass border border-secondary-300/50 rounded-2xl text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-base sm:text-lg backdrop-blur-xl"
             required
           />
         </div>
@@ -220,7 +220,7 @@ export default function TransactionForm() {
             <select
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+                className="w-full pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 glass border border-secondary-300/50 rounded-2xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-base sm:text-lg backdrop-blur-xl"
               required
             >
               {users.length === 0 ? (
@@ -264,17 +264,17 @@ export default function TransactionForm() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-3.5 rounded-xl font-semibold text-white shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-            type === 'INCOME'
-              ? 'gradient-success'
-              : 'gradient-danger'
-          }`}
-        >
-          {loading ? 'Adicionando...' : 'Adicionar Transação'}
-        </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-4 sm:py-5 rounded-2xl font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover-lift text-base sm:text-lg ${
+                type === 'INCOME'
+                  ? 'gradient-success'
+                  : 'gradient-danger'
+              }`}
+            >
+              {loading ? 'Adicionando...' : 'Adicionar Transação'}
+            </button>
       </form>
     </div>
   )
