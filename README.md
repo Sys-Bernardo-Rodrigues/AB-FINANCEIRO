@@ -254,17 +254,152 @@ npx prisma db seed
 npm run dev
 ```
 
-#### 8. Acesse a Aplicação
+#### 8. Execute o Build para Produção
 
-Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+Antes de configurar como serviço, faça o build da aplicação:
 
-**Nota para acesso remoto:** Se estiver acessando de outro computador, certifique-se de que a porta 3000 está aberta no firewall:
+```bash
+npm run build
+```
+
+#### 9. Configure como Serviço Systemd (Recomendado para Produção)
+
+Para que o sistema inicie automaticamente e rode como serviço no AlmaLinux:
+
+1. **Crie o arquivo de serviço systemd:**
+
+```bash
+sudo nano /etc/systemd/system/financeiro.service
+```
+
+2. **Adicione o seguinte conteúdo (ajuste os caminhos conforme necessário):**
+
+```ini
+[Unit]
+Description=Sistema Financeiro - Next.js Application
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=simple
+User=seu_usuario
+WorkingDirectory=/home/seu_usuario/AB-FINANCEIRO
+Environment="NODE_ENV=production"
+EnvironmentFile=/home/seu_usuario/AB-FINANCEIRO/.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=financeiro
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**⚠️ IMPORTANTE:** Substitua:
+- `seu_usuario` pelo seu usuário Linux (ex: `zroot`, `admin`, etc.)
+- `/home/seu_usuario/AB-FINANCEIRO` pelo caminho completo do seu projeto
+
+**Exemplo real:**
+```ini
+[Unit]
+Description=Sistema Financeiro - Next.js Application
+After=network.target
+
+[Service]
+Type=simple
+User=zroot
+WorkingDirectory=/home/zroot/AB-FINANCEIRO
+Environment="NODE_ENV=production"
+EnvironmentFile=/home/zroot/AB-FINANCEIRO/.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=financeiro
+
+[Install]
+WantedBy=multi-user.target
+```
+
+3. **Recarregue o systemd e habilite o serviço:**
+
+```bash
+# Recarregar systemd para reconhecer o novo serviço
+sudo systemctl daemon-reload
+
+# Habilitar o serviço para iniciar no boot
+sudo systemctl enable financeiro.service
+
+# Iniciar o serviço
+sudo systemctl start financeiro.service
+
+# Verificar status
+sudo systemctl status financeiro.service
+```
+
+4. **Comandos úteis para gerenciar o serviço:**
+
+```bash
+# Ver status
+sudo systemctl status financeiro.service
+
+# Parar o serviço
+sudo systemctl stop financeiro.service
+
+# Iniciar o serviço
+sudo systemctl start financeiro.service
+
+# Reiniciar o serviço
+sudo systemctl restart financeiro.service
+
+# Ver logs em tempo real
+sudo journalctl -u financeiro.service -f
+
+# Ver últimas 100 linhas dos logs
+sudo journalctl -u financeiro.service -n 100
+
+# Ver logs desde hoje
+sudo journalctl -u financeiro.service --since today
+
+# Desabilitar inicialização automática
+sudo systemctl disable financeiro.service
+```
+
+5. **Verificar se o serviço está rodando:**
+
+```bash
+# Ver status detalhado
+sudo systemctl status financeiro.service
+
+# Verificar se a porta está aberta
+sudo netstat -tlnp | grep :3000
+# ou
+sudo ss -tlnp | grep :3000
+
+# Testar se a aplicação responde
+curl http://localhost:3000
+```
+
+#### 10. Configure o Firewall
+
+Se estiver acessando de outro computador, certifique-se de que a porta 3000 está aberta no firewall:
 
 ```bash
 # Firewalld (AlmaLinux)
 sudo firewall-cmd --permanent --add-port=3000/tcp
 sudo firewall-cmd --reload
+
+# Verificar portas abertas
+sudo firewall-cmd --list-ports
 ```
+
+#### 11. Acesse a Aplicação
+
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador ou `http://seu-servidor-ip:3000` se estiver acessando remotamente.
+
+**Nota:** Se você configurou o serviço systemd, a aplicação já deve estar rodando. Verifique com `sudo systemctl status financeiro.service`.
 
 ## 🐳 Docker
 
@@ -431,17 +566,25 @@ Para produção, use valores seguros e específicos do seu ambiente:
 NODE_ENV="production"
 
 # Banco de Dados PostgreSQL
-# IMPORTANTE: Use credenciais fortes e uma conexão segura (SSL)
-DATABASE_URL="postgresql://usuario_seguro:senha_super_forte@servidor-db:5432/financeiro_db?schema=public&sslmode=require"
+# Para servidores internos/Docker (sem SSL):
+DATABASE_URL="postgresql://usuario_seguro:senha_super_forte@servidor-db:5432/financeiro_db?schema=public&sslmode=disable"
+
+# Para servidores externos/cloud (com SSL):
+# DATABASE_URL="postgresql://usuario_seguro:senha_super_forte@servidor-db:5432/financeiro_db?schema=public&sslmode=require"
+
 POSTGRES_USER="usuario_seguro"
 POSTGRES_PASSWORD="senha_super_forte_complexa_min_32_chars"
 POSTGRES_DB="financeiro_db"
 POSTGRES_PORT=5432
 
 # Redis
-# IMPORTANTE: Em produção, considere usar Redis com autenticação
-REDIS_URL="redis://:senha_redis_forte@servidor-redis:6379"
+# Para servidores locais/Docker SEM senha (padrão):
+REDIS_URL="redis://localhost:6379"
+
+# Para servidores COM senha (produção com autenticação):
+# REDIS_URL="redis://:senha_redis_forte@servidor-redis:6379"
 # Ou com SSL: REDIS_URL="rediss://:senha_redis_forte@servidor-redis:6380"
+
 REDIS_PORT=6379
 
 # JWT (Autenticação)
@@ -485,6 +628,57 @@ PORT=3000
 6. **Configure firewall** para permitir apenas conexões necessárias
 
 7. **Use Redis com autenticação** em produção
+
+### ❗ Troubleshooting - Erros Comuns
+
+#### Erro: Redis AUTH sem senha configurada
+
+**Erro:**
+```
+ERR AUTH <password> called without any password configured for the default user
+```
+
+**Causa:** A URL do Redis no `.env` está tentando usar autenticação, mas o servidor Redis não tem senha configurada.
+
+**Solução:** Para Redis local/Docker sem senha, use a URL simples:
+
+```env
+REDIS_URL="redis://localhost:6379"
+```
+
+**NÃO use** (se o Redis não tiver senha):
+```env
+REDIS_URL="redis://:senha@localhost:6379"  # ❌ Erro!
+```
+
+#### Erro: PostgreSQL TLS/SSL
+
+**Erro:**
+```
+Error opening a TLS connection: server does not support TLS
+```
+
+**Causa:** O Prisma está tentando usar TLS, mas o PostgreSQL não está configurado para isso.
+
+**Solução:** Para servidores locais/internos, adicione `?sslmode=disable` na DATABASE_URL:
+
+```env
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/database?schema=public&sslmode=disable"
+```
+
+#### Timeout durante o Build
+
+**Erro:**
+```
+Static page generation timeout
+```
+
+**Causa:** O Next.js está tentando gerar páginas estáticas que dependem de APIs que fazem conexões com Redis/PostgreSQL durante o build.
+
+**Soluções:**
+1. Certifique-se de que Redis e PostgreSQL estão rodando antes do build
+2. Para produção, considere usar `output: 'standalone'` no `next.config.js` ou gerar páginas dinamicamente
+3. Verifique se as variáveis de ambiente estão corretas
 
 ## 📝 Licença
 
