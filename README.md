@@ -272,12 +272,28 @@ Para que o sistema inicie automaticamente e rode como serviço no AlmaLinux:
 sudo nano /etc/systemd/system/financeiro.service
 ```
 
-2. **Adicione o seguinte conteúdo (ajuste os caminhos conforme necessário):**
+2. **Primeiro, descubra o caminho do npm e node:**
 
+```bash
+# Descobrir onde está o npm
+which npm
+
+# Descobrir onde está o node
+which node
+
+# Verificar o caminho completo do npm
+readlink -f $(which npm)
+```
+
+3. **Adicione o seguinte conteúdo ao arquivo (ajuste os caminhos conforme necessário):**
+
+**IMPORTANTE:** Use o caminho do npm que você descobriu acima. Se o npm estiver em `/usr/bin/npm`, use esse. Se estiver em `/usr/local/bin/npm`, use esse.
+
+**Template do serviço:**
 ```ini
 [Unit]
 Description=Sistema Financeiro - Next.js Application
-After=network.target postgresql.service redis.service
+After=network.target
 
 [Service]
 Type=simple
@@ -296,11 +312,12 @@ SyslogIdentifier=financeiro
 WantedBy=multi-user.target
 ```
 
-**⚠️ IMPORTANTE:** Substitua:
+**⚠️ IMPORTANTE - Substitua:**
 - `seu_usuario` pelo seu usuário Linux (ex: `zroot`, `admin`, etc.)
 - `/home/seu_usuario/AB-FINANCEIRO` pelo caminho completo do seu projeto
+- `/usr/bin/npm` pelo caminho real do npm (use `which npm` para descobrir)
 
-**Exemplo real:**
+**Exemplo real (ajuste os valores):**
 ```ini
 [Unit]
 Description=Sistema Financeiro - Next.js Application
@@ -313,6 +330,30 @@ WorkingDirectory=/home/zroot/AB-FINANCEIRO
 Environment="NODE_ENV=production"
 EnvironmentFile=/home/zroot/AB-FINANCEIRO/.env
 ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=financeiro
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Alternativa:** Se o npm não funcionar, você pode usar o node diretamente (mais confiável):
+
+```ini
+[Unit]
+Description=Sistema Financeiro - Next.js Application
+After=network.target
+
+[Service]
+Type=simple
+User=zroot
+WorkingDirectory=/home/zroot/AB-FINANCEIRO
+Environment="NODE_ENV=production"
+EnvironmentFile=/home/zroot/AB-FINANCEIRO/.env
+ExecStart=/usr/bin/node /home/zroot/AB-FINANCEIRO/node_modules/.bin/next start
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -679,6 +720,80 @@ Static page generation timeout
 1. Certifique-se de que Redis e PostgreSQL estão rodando antes do build
 2. Para produção, considere usar `output: 'standalone'` no `next.config.js` ou gerar páginas dinamicamente
 3. Verifique se as variáveis de ambiente estão corretas
+
+#### Erro: Systemd Service Failed - Unavailable Resources
+
+**Erro:**
+```
+Job for financeiro.service failed because of unavailable resources or another system error.
+```
+
+**Causa:** Geralmente é um problema com o caminho do executável (npm/node) ou permissões.
+
+**Solução passo a passo:**
+
+1. **Verifique o caminho do npm:**
+   ```bash
+   which npm
+   # Pode retornar: /usr/bin/npm ou /usr/local/bin/npm
+   ```
+
+2. **Verifique se o arquivo .env existe e tem permissões corretas:**
+   ```bash
+   ls -la /home/zroot/AB-FINANCEIRO/.env
+   # O arquivo deve existir e ser legível pelo usuário
+   ```
+
+3. **Verifique se o diretório existe:**
+   ```bash
+   ls -la /home/zroot/AB-FINANCEIRO
+   # Deve mostrar o diretório do projeto
+   ```
+
+4. **Edite o arquivo de serviço e corrija o caminho:**
+   ```bash
+   sudo nano /etc/systemd/system/financeiro.service
+   ```
+
+5. **Use o caminho correto do npm (descoberto no passo 1):**
+   - Se `which npm` retornou `/usr/bin/npm`, use: `ExecStart=/usr/bin/npm start`
+   - Se retornou `/usr/local/bin/npm`, use: `ExecStart=/usr/local/bin/npm start`
+
+6. **Alternativa mais confiável - Use node diretamente:**
+   ```ini
+   ExecStart=/usr/bin/node /home/zroot/AB-FINANCEIRO/node_modules/.bin/next start
+   ```
+   (Descubra o caminho do node com `which node`)
+
+7. **Verifique os logs detalhados:**
+   ```bash
+   sudo journalctl -xeu financeiro.service
+   # ou
+   sudo systemctl status financeiro.service -l
+   ```
+
+8. **Teste manualmente se o comando funciona:**
+   ```bash
+   # Como o usuário do serviço (não como root)
+   sudo -u zroot bash
+   cd /home/zroot/AB-FINANCEIRO
+   npm start
+   # Se funcionar manualmente, o problema está no systemd
+   # Se não funcionar, resolva primeiro os problemas de execução manual
+   ```
+
+9. **Após corrigir, recarregue e tente novamente:**
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl start financeiro.service
+   sudo systemctl status financeiro.service
+   ```
+
+**Outras causas comuns:**
+- Usuário especificado não existe
+- Diretório de trabalho não existe ou usuário não tem permissão
+- Arquivo .env não existe ou não é legível
+- Dependências não estão instaladas (npm install não foi executado)
 
 ## 📝 Licença
 
