@@ -5,7 +5,7 @@ import Header from '@/components/Header'
 import Navigation from '@/components/Navigation'
 import AuthGuard from '@/components/AuthGuard'
 import Button from '@/components/ui/Button'
-import { Download, RefreshCw, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Download, RefreshCw, CheckCircle, XCircle, AlertCircle, Power } from 'lucide-react'
 
 interface UpdateStep {
   step: string
@@ -18,6 +18,10 @@ export default function SettingsPage() {
   const [updateSteps, setUpdateSteps] = useState<UpdateStep[]>([])
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [updateMessage, setUpdateMessage] = useState('')
+  
+  const [isRestarting, setIsRestarting] = useState(false)
+  const [restartStatus, setRestartStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [restartMessage, setRestartMessage] = useState('')
 
   const handleUpdate = async () => {
     setIsUpdating(true)
@@ -72,6 +76,55 @@ export default function SettingsPage() {
       prisma: 'Atualizar Prisma',
     }
     return labels[step] || step
+  }
+
+  const handleRestart = async () => {
+    if (!confirm('Tem certeza que deseja reiniciar a aplicação? A aplicação ficará temporariamente indisponível.')) {
+      return
+    }
+
+    setIsRestarting(true)
+    setRestartStatus('idle')
+    setRestartMessage('')
+
+    try {
+      const response = await fetch('/api/system/restart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setRestartStatus('success')
+        setRestartMessage(data.message || 'Aplicação reiniciada com sucesso! A página será recarregada em alguns segundos...')
+        
+        // Aguardar um pouco e tentar recarregar a página
+        setTimeout(() => {
+          window.location.reload()
+        }, 3000)
+      } else {
+        setRestartStatus('error')
+        if (data.requiresManual && data.instructions) {
+          setRestartMessage(`${data.message}\n\nComando para executar no servidor:\n${data.instructions}`)
+        } else {
+          setRestartMessage(data.message || 'Erro ao reiniciar a aplicação')
+        }
+      }
+    } catch (error: any) {
+      setRestartStatus('error')
+      setRestartMessage('Erro ao conectar com o servidor. A aplicação pode estar reiniciando...')
+      console.error('Erro no restart:', error)
+      
+      // Se houver erro de conexão, pode ser que o servidor esteja reiniciando
+      setTimeout(() => {
+        window.location.reload()
+      }, 5000)
+    } finally {
+      setIsRestarting(false)
+    }
   }
 
   return (
@@ -194,6 +247,63 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Reinicialização do Sistema */}
+            <div className="glass rounded-xl border border-secondary-200/50 shadow-card p-6 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-warning-100 rounded-xl flex items-center justify-center">
+                    <Power className="w-5 h-5 text-warning-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-secondary-900">Reinicialização</h2>
+                    <p className="text-sm text-secondary-500">Reiniciar a aplicação</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  onClick={handleRestart}
+                  isLoading={isRestarting}
+                  leftIcon={<Power className="w-5 h-5" />}
+                  fullWidth
+                  disabled={isRestarting}
+                  variant="warning"
+                >
+                  {isRestarting ? 'Reiniciando...' : 'Reiniciar Aplicação'}
+                </Button>
+
+                {restartStatus !== 'idle' && (
+                  <div className={`p-4 rounded-xl border-2 ${
+                    restartStatus === 'success' 
+                      ? 'bg-success-50 border-success-200' 
+                      : 'bg-danger-50 border-danger-200'
+                  }`}>
+                    <div className="flex items-start gap-3">
+                      {restartStatus === 'success' ? (
+                        <CheckCircle className="w-5 h-5 text-success-600 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-danger-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className={`font-medium whitespace-pre-line ${
+                          restartStatus === 'success' ? 'text-success-900' : 'text-danger-900'
+                        }`}>
+                          {restartMessage}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-3 bg-warning-50 border border-warning-200 rounded-lg">
+                  <p className="text-sm text-warning-800">
+                    <strong>Atenção:</strong> A aplicação ficará temporariamente indisponível durante o reinício. Isso geralmente leva alguns segundos.
+                  </p>
+                </div>
               </div>
             </div>
 

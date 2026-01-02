@@ -41,9 +41,8 @@ export default function IOSMetaTags() {
     addMetaTag('apple-mobile-web-app-title', 'AB Financeiro')
     addMetaTag('mobile-web-app-capable', 'yes')
 
-    // Ícones Apple Touch Icon (usando os ícones principais como fallback)
-    addLinkTag('apple-touch-icon', '/icon-192.png', '192x192')
-    addLinkTag('apple-touch-icon', '/icon-512.png', '512x512')
+    // Ícones Apple Touch Icon
+    addLinkTag('apple-touch-icon', '/apple-icon-180x180.png', '180x180')
     
     // Ícones específicos para diferentes dispositivos (se existirem)
     const appleIcons = [
