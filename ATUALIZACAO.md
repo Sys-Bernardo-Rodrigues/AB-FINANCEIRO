@@ -213,9 +213,30 @@ Se você configurou a rota de atualização na interface web:
 
 ## ⚠️ Troubleshooting
 
-### Erro: "git pull" com conflitos
+### Erro: "git pull" com conflitos ou mudanças locais
 
-Se houver conflitos durante o pull:
+O script agora detecta automaticamente mudanças locais e oferece opções:
+
+**Quando o script detectar mudanças locais, você verá:**
+
+```
+Mudanças locais detectadas
+ M package.json
+ M package-lock.json
+?? scripts/update.sh
+
+Opções para lidar com mudanças locais:
+  1) Fazer stash (salvar temporariamente e restaurar depois)
+  2) Descartar mudanças locais (usar versão do servidor)
+  3) Cancelar atualização
+```
+
+**Recomendações:**
+
+- **Opção 1 (Stash)** - Use se você tem mudanças locais importantes que quer preservar
+- **Opção 2 (Descartar)** - Use se as mudanças locais não são importantes ou são apenas arquivos gerados (package-lock.json)
+
+**Se preferir resolver manualmente:**
 
 ```bash
 # Ver arquivos em conflito
@@ -223,8 +244,14 @@ git status
 
 # Opção 1: Descartar mudanças locais e usar a versão do servidor
 git reset --hard origin/main
+git clean -fd  # Remove arquivos não rastreados
 
-# Opção 2: Fazer merge manual (recomendado se tiver mudanças importantes)
+# Opção 2: Fazer stash das mudanças
+git stash push -m "Mudanças locais antes de atualizar"
+git pull origin main
+git stash pop  # Restaurar depois (pode ter conflitos)
+
+# Opção 3: Fazer merge manual (recomendado se tiver mudanças importantes)
 git merge origin/main
 # Resolver conflitos manualmente nos arquivos
 # Depois: git add . && git commit -m "Merge com origin/main"
