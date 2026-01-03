@@ -150,14 +150,94 @@ else
     echo ""
 fi
 
-# Passo 5: Fazer pull das atualizações
+# Passo 5: Lidar com mudanças locais antes do pull
 if [ "$NEEDS_UPDATE" = true ]; then
-    echo -e "${GREEN}[5/7]${NC} Baixando atualizações do GitHub..."
+    echo -e "${GREEN}[5/7]${NC} Verificando mudanças locais..."
+    
+    # Verificar se há mudanças locais
+    if ! git diff-index --quiet HEAD -- 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo -e "${YELLOW}  Mudanças locais detectadas${NC}"
+        git status --short
+        
+        echo ""
+        echo "Opções para lidar com mudanças locais:"
+        echo "  1) Fazer stash (salvar temporariamente e restaurar depois)"
+        echo "  2) Descartar mudanças locais (usar versão do servidor)"
+        echo "  3) Cancelar atualização"
+        echo ""
+        read -p "Escolha uma opção (1/2/3) [padrão: 1]: " -n 1 -r
+        echo ""
+        
+        case $REPLY in
+            2)
+                echo "  Descartando mudanças locais..."
+                # Remover arquivos não rastreados que podem causar conflito
+                git clean -fd
+                # Descartar mudanças em arquivos rastreados
+                git reset --hard HEAD
+                echo -e "${GREEN}  Mudanças locais descartadas ✓${NC}"
+                ;;
+            3)
+                echo -e "${BLUE}Atualização cancelada pelo usuário${NC}"
+                if [ "$SERVICE_EXISTS" = true ] && [ "$NO_RESTART" = false ]; then
+                    sudo systemctl start "${SERVICE_NAME}.service" || true
+                fi
+                exit 0
+                ;;
+            *)
+                echo "  Fazendo stash das mudanças locais..."
+                if git stash push -m "Stash automático antes de atualização $(date +%Y-%m-%d_%H:%M:%S)"; then
+                    echo -e "${GREEN}  Mudanças salvas em stash ✓${NC}"
+                    STASH_CREATED=true
+                else
+                    echo -e "${YELLOW}  Aviso: Não foi possível fazer stash (pode estar vazio)${NC}"
+                    STASH_CREATED=false
+                fi
+                # Limpar arquivos não rastreados que podem causar conflito
+                git clean -fd
+                ;;
+        esac
+        echo ""
+    else
+        STASH_CREATED=false
+        echo -e "${GREEN}  Nenhuma mudança local detectada ✓${NC}"
+        echo ""
+    fi
+    
+    # Fazer pull das atualizações
+    echo "  Baixando atualizações do GitHub..."
     BRANCH=$(git branch --show-current)
-    if git pull origin "$BRANCH" || git pull origin main; then
+    
+    if git pull origin "$BRANCH" 2>/dev/null || git pull origin main 2>/dev/null; then
         echo -e "${GREEN}  Pull executado com sucesso ✓${NC}"
+        
+        # Tentar restaurar stash se foi criado
+        if [ "$STASH_CREATED" = true ]; then
+            echo "  Tentando restaurar mudanças locais do stash..."
+            if git stash pop 2>/dev/null; then
+                echo -e "${GREEN}  Mudanças locais restauradas ✓${NC}"
+            else
+                echo -e "${YELLOW}  Aviso: Não foi possível restaurar stash automaticamente${NC}"
+                echo "  Você pode restaurar manualmente com: git stash list && git stash pop"
+            fi
+        fi
     else
         echo -e "${RED}  Erro ao executar git pull${NC}"
+        echo ""
+        echo "Possíveis causas:"
+        echo "  - Conflitos de merge"
+        echo "  - Mudanças locais que não puderam ser resolvidas"
+        echo ""
+        echo "Soluções:"
+        echo "  1. Resolver conflitos manualmente:"
+        echo "     git status"
+        echo "     # Editar arquivos em conflito"
+        echo "     git add ."
+        echo "     git commit"
+        echo ""
+        echo "  2. Ou descartar mudanças locais e tentar novamente:"
+        echo "     git reset --hard origin/main"
+        echo ""
         echo "  Tentando restaurar o serviço..."
         if [ "$SERVICE_EXISTS" = true ] && [ "$NO_RESTART" = false ]; then
             sudo systemctl start "${SERVICE_NAME}.service" || true
