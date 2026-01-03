@@ -591,6 +591,30 @@ Os logs são armazenados por 7 dias e mantém os 100 mais recentes em uma lista.
 - `npm run docker:up` - Inicia containers Docker
 - `npm run docker:down` - Para containers Docker
 - `npm run docker:logs` - Visualiza logs dos containers
+- `npm run update` - Atualiza o sistema do GitHub (ver [ATUALIZACAO.md](./ATUALIZACAO.md))
+- `npm run update:no-restart` - Atualiza sem reiniciar o serviço
+- `npm run update:no-build` - Atualiza sem fazer build
+
+## 🔄 Atualização do Sistema
+
+Para atualizar o sistema no servidor quando há novas versões no GitHub, consulte o guia completo em [ATUALIZACAO.md](./ATUALIZACAO.md).
+
+**Método rápido:**
+
+```bash
+# Atualizar o sistema (recomendado)
+npm run update
+
+# Ou usar o script diretamente
+./scripts/update.sh
+```
+
+O script de atualização:
+- ✅ Busca atualizações do GitHub
+- ✅ Instala novas dependências
+- ✅ Executa migrações do banco
+- ✅ Faz build da aplicação
+- ✅ Reinicia o serviço automaticamente
 
 ## 🔒 Variáveis de Ambiente
 

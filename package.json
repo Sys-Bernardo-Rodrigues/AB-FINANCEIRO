@@ -13,7 +13,10 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "ports:generate": "node scripts/generate-ports.js"
+    "ports:generate": "node scripts/generate-ports.js",
+    "update": "./scripts/update.sh",
+    "update:no-restart": "./scripts/update.sh --no-restart",
+    "update:no-build": "./scripts/update.sh --no-build"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
