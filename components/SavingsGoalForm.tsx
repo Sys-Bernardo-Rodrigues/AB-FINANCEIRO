@@ -223,7 +223,7 @@ export default function SavingsGoalForm({ onSuccess }: SavingsGoalFormProps) {
         </div>
       )}
 
-      <div className="pt-4 border-t border-secondary-200">
+      <div className="pt-4 pb-4 border-t border-secondary-200">
         <button
           type="submit"
           disabled={loading}

@@ -247,7 +247,7 @@ export default function PlanForm() {
         </div>
       )}
 
-      <div className="pt-4 border-t border-secondary-200">
+      <div className="pt-4 pb-4 border-t border-secondary-200">
         <button
           type="submit"
           disabled={loading}

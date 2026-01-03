@@ -414,17 +414,17 @@ export default function TransactionForm() {
   }
 
   return (
-    <div className="space-y-4 pb-4">
-      {/* Seletor de Tipo - Design Melhorado */}
-      <Card variant="default" padding="sm" className="bg-gradient-to-r from-white to-secondary-50/50">
+    <div className="space-y-3 pb-8">
+      {/* Seletor de Tipo - Otimizado para iPhone 14 */}
+      <Card variant="default" padding="sm" className="bg-white shadow-sm">
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => setType('EXPENSE')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold transition-all duration-200 touch-feedback ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm transition-all duration-200 touch-feedback ${
               type === 'EXPENSE'
                 ? 'bg-danger-50 text-danger-700 border-2 border-danger-300 shadow-sm'
-                : 'text-secondary-600 hover:text-danger-600 hover:bg-danger-50/50 border-2 border-transparent'
+                : 'text-secondary-600 border-2 border-transparent bg-secondary-50 active:bg-danger-50/30'
             }`}
           >
             <ArrowDownCircle className="w-5 h-5" />
@@ -433,10 +433,10 @@ export default function TransactionForm() {
           <button
             type="button"
             onClick={() => setType('INCOME')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold transition-all duration-200 touch-feedback ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm transition-all duration-200 touch-feedback ${
               type === 'INCOME'
                 ? 'bg-success-50 text-success-700 border-2 border-success-300 shadow-sm'
-                : 'text-secondary-600 hover:text-success-600 hover:bg-success-50/50 border-2 border-transparent'
+                : 'text-secondary-600 border-2 border-transparent bg-secondary-50 active:bg-success-50/30'
             }`}
           >
             <ArrowUpCircle className="w-5 h-5" />
@@ -445,22 +445,22 @@ export default function TransactionForm() {
         </div>
       </Card>
 
-      {/* Formulário - Design Melhorado */}
-      <Card variant="default" padding="lg">
-        <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Formulário - Otimizado para iPhone 14 */}
+      <Card variant="default" padding="md">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Informações Básicas */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                 type === 'INCOME' ? 'bg-success-100' : 'bg-danger-100'
               }`}>
                 {type === 'INCOME' ? (
-                  <ArrowUpCircle className={`w-5 h-5 ${type === 'INCOME' ? 'text-success-600' : 'text-danger-600'}`} />
+                  <ArrowUpCircle className="w-4 h-4 text-success-600" />
                 ) : (
-                  <ArrowDownCircle className="w-5 h-5 text-danger-600" />
+                  <ArrowDownCircle className="w-4 h-4 text-danger-600" />
                 )}
               </div>
-              <h2 className="text-lg font-bold text-secondary-900">
+              <h2 className="text-base font-bold text-secondary-900">
                 Informações Básicas
               </h2>
             </div>
@@ -474,34 +474,32 @@ export default function TransactionForm() {
               disabled={!!installmentId}
             />
 
-            <div className="grid grid-cols-1 gap-4">
-              <Input
-                label="Valor"
-                type="number"
-                step="0.01"
-                min="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0,00"
-                leftIcon={<DollarSign className="w-5 h-5" />}
-                required
-                disabled={!!installmentId}
-              />
-            </div>
+            <Input
+              label="Valor"
+              type="number"
+              step="0.01"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0,00"
+              leftIcon={<DollarSign className="w-5 h-5" />}
+              required
+              disabled={!!installmentId}
+            />
           </div>
 
           {/* Parcelamento - Opcional */}
           {installments.length > 0 && (
-            <div className="space-y-4 pt-4 border-t border-secondary-200">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-warning-100 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-warning-600" />
+            <div className="space-y-3 pt-3 border-t border-secondary-200">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-warning-100 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-warning-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-secondary-900">
+                  <h2 className="text-base font-bold text-secondary-900">
                     Parcelamento
                   </h2>
-                  <p className="text-xs text-secondary-500">Vincular a um parcelamento existente</p>
+                  <p className="text-[11px] text-secondary-500">Vincular a um parcelamento existente</p>
                 </div>
               </div>
 
@@ -537,8 +535,8 @@ export default function TransactionForm() {
               />
 
               {installmentId && (
-                <div className="p-3 bg-warning-50 border border-warning-200 rounded-xl">
-                  <p className="text-xs text-warning-700 font-medium">
+                <div className="p-2.5 bg-warning-50 border border-warning-200 rounded-lg">
+                  <p className="text-[11px] text-warning-700 font-medium leading-relaxed">
                     ℹ️ Os campos Categoria, Valor e Descrição serão preenchidos automaticamente
                   </p>
                 </div>
@@ -547,12 +545,12 @@ export default function TransactionForm() {
           )}
 
           {/* Categoria e Usuário */}
-          <div className="space-y-4 pt-4 border-t border-secondary-200">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <Tag className="w-5 h-5 text-primary-600" />
+          <div className="space-y-3 pt-3 border-t border-secondary-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center">
+                <Tag className="w-4 h-4 text-primary-600" />
               </div>
-              <h2 className="text-lg font-bold text-secondary-900">
+              <h2 className="text-base font-bold text-secondary-900">
                 Classificação
               </h2>
             </div>
@@ -608,12 +606,12 @@ export default function TransactionForm() {
           </div>
 
           {/* Data e Agendamento */}
-          <div className="space-y-4 pt-4 border-t border-secondary-200">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-warning-100 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-warning-600" />
+          <div className="space-y-3 pt-3 border-t border-secondary-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-warning-100 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-warning-600" />
               </div>
-              <h2 className="text-lg font-bold text-secondary-900">
+              <h2 className="text-base font-bold text-secondary-900">
                 Data
               </h2>
             </div>
@@ -633,7 +631,7 @@ export default function TransactionForm() {
               required
             />
             
-            <label className="flex items-center gap-3 p-3 bg-secondary-50 rounded-xl cursor-pointer hover:bg-secondary-100 transition-colors">
+            <label className="flex items-center gap-2.5 p-2.5 bg-secondary-50 rounded-lg cursor-pointer active:bg-secondary-100 transition-colors touch-feedback">
               <input
                 type="checkbox"
                 checked={isScheduled}
@@ -652,16 +650,16 @@ export default function TransactionForm() {
           </div>
 
           {/* Comprovante */}
-          <div className="space-y-3 pt-4 border-t border-secondary-200">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <FileImage className="w-5 h-5 text-primary-600" />
+          <div className="space-y-2.5 pt-3 border-t border-secondary-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center">
+                <FileImage className="w-4 h-4 text-primary-600" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-secondary-900">
+                <h2 className="text-base font-bold text-secondary-900">
                   Comprovante
                 </h2>
-                <p className="text-xs text-secondary-500">Opcional</p>
+                <p className="text-[11px] text-secondary-500">Opcional</p>
               </div>
             </div>
 
@@ -678,10 +676,10 @@ export default function TransactionForm() {
             {!receiptFile ? (
               <label
                 htmlFor="receipt-upload"
-                className={`flex items-center justify-center gap-2 p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all touch-feedback ${
+                className={`flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg cursor-pointer transition-all touch-feedback ${
                   uploadingReceipt || loading
                     ? 'border-secondary-200 bg-secondary-50 cursor-not-allowed opacity-50'
-                    : 'border-secondary-300 hover:border-primary-400 hover:bg-primary-50/50'
+                    : 'border-secondary-300 active:border-primary-400 active:bg-primary-50/50'
                 }`}
               >
                 <Upload className="w-5 h-5 text-secondary-600" />
@@ -690,16 +688,16 @@ export default function TransactionForm() {
                 </span>
               </label>
             ) : (
-              <div className="flex items-center justify-between p-4 bg-success-50 border-2 border-success-200 rounded-xl">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center flex-shrink-0">
+              <div className="flex items-center justify-between p-3 bg-success-50 border-2 border-success-200 rounded-lg">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-success-100 flex items-center justify-center flex-shrink-0">
                     <FileImage className="w-5 h-5 text-success-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-secondary-900 truncate">
                       {receiptFile.name}
                     </p>
-                    <p className="text-xs text-secondary-500">
+                    <p className="text-[11px] text-secondary-500">
                       {(receiptFile.size / 1024).toFixed(2)} KB
                     </p>
                   </div>
@@ -707,27 +705,27 @@ export default function TransactionForm() {
                 <button
                   type="button"
                   onClick={removeReceipt}
-                  className="p-2 text-secondary-500 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors touch-feedback"
+                  className="p-1.5 text-secondary-500 active:text-danger-600 active:bg-danger-50 rounded-lg transition-colors touch-feedback"
                   disabled={uploadingReceipt || loading}
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             )}
-            <p className="text-xs text-secondary-500 text-center">
+            <p className="text-[11px] text-secondary-500 text-center">
               JPG, PNG, WEBP ou PDF (máx. 10MB)
             </p>
           </div>
 
           {/* Erro */}
           {error && (
-            <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-danger-50 border border-danger-200 text-danger-700 px-3 py-2.5 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Botão de Submit */}
-          <div className="pt-4 border-t border-secondary-200">
+          <div className="pt-3 pb-4 border-t border-secondary-200">
             <Button
               type="submit"
               isLoading={loading}
