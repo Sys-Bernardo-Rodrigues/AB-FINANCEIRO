@@ -16,6 +16,7 @@ const transactionSchema = z.object({
   scheduledDate: z.string().optional(),
   planId: z.string().uuid('Plano inválido').optional(),
   installmentId: z.string().uuid('Parcelamento inválido').optional(),
+  creditCardId: z.string().uuid('Cartão de crédito inválido').optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -83,6 +84,7 @@ export async function GET(request: NextRequest) {
             email: true,
           },
         },
+        creditCard: true,
         receipts: {
           orderBy: {
             uploadedAt: 'desc',
@@ -121,6 +123,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    
+    // Limpar campos vazios opcionais
+    if (body.creditCardId === '') {
+      delete body.creditCardId
+    }
+    if (body.planId === '') {
+      delete body.planId
+    }
+    if (body.installmentId === '') {
+      delete body.installmentId
+    }
     
     // Validar dados
     let data
@@ -199,6 +212,23 @@ export async function POST(request: NextRequest) {
             )
           }
         }
+
+        // Verificar se creditCardId é válido (se fornecido)
+        if (data.creditCardId) {
+          const creditCard = await prisma.creditCard.findFirst({
+            where: {
+              id: data.creditCardId,
+              userId: targetUserId,
+            },
+          })
+          
+          if (!creditCard) {
+            return NextResponse.json(
+              { error: 'Cartão de crédito não encontrado' },
+              { status: 404 }
+            )
+          }
+        }
         
         const transaction = await prisma.transaction.create({
           data: {
@@ -213,6 +243,7 @@ export async function POST(request: NextRequest) {
             planId: data.planId || null,
             installmentId: data.installmentId || null,
             isInstallment: !!data.installmentId,
+            creditCardId: data.creditCardId || null,
           },
           include: {
             category: true,
@@ -225,6 +256,7 @@ export async function POST(request: NextRequest) {
             },
             plan: true,
             installment: true,
+            creditCard: true,
             receipts: {
               orderBy: {
                 uploadedAt: 'desc',

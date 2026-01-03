@@ -13,6 +13,7 @@ const recurringTransactionSchema = z.object({
   startDate: z.string(),
   endDate: z.string().optional(),
   userId: z.string().uuid('Usuário inválido').optional(),
+  creditCardId: z.string().uuid('Cartão de crédito inválido').optional(),
 })
 
 function calculateNextDueDate(
@@ -152,6 +153,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verificar se creditCardId é válido (se fornecido)
+    if (data.creditCardId) {
+      const creditCard = await prisma.creditCard.findFirst({
+        where: {
+          id: data.creditCardId,
+          userId: targetUserId,
+        },
+      })
+      
+      if (!creditCard) {
+        return NextResponse.json(
+          { error: 'Cartão de crédito não encontrado' },
+          { status: 404 }
+        )
+      }
+    }
+
     const startDate = new Date(data.startDate)
     const nextDueDate = calculateNextDueDate(data.frequency, startDate, startDate)
 
@@ -166,6 +184,7 @@ export async function POST(request: NextRequest) {
         startDate,
         endDate: data.endDate ? new Date(data.endDate) : null,
         nextDueDate,
+        creditCardId: data.creditCardId || null,
       },
       include: {
         category: true,

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { Target, User } from 'lucide-react'
+import Card from '@/components/ui/Card'
 
 interface Category {
   id: string
@@ -120,7 +121,8 @@ export default function PlanForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <Card variant="default" padding="lg">
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-semibold text-secondary-700 mb-2">
           Nome do Planejamento
@@ -245,14 +247,17 @@ export default function PlanForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        <Target className="w-5 h-5" />
-        {loading ? 'Criando...' : 'Criar Planejamento'}
-      </button>
-    </form>
+      <div className="pt-4 border-t border-secondary-200">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <Target className="w-5 h-5" />
+          {loading ? 'Criando...' : 'Criar Planejamento'}
+        </button>
+      </div>
+      </form>
+    </Card>
   )
 }

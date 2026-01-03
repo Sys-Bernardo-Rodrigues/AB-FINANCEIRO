@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Target, Calendar, DollarSign } from 'lucide-react'
+import Card from '@/components/ui/Card'
 
 interface SavingsGoalFormProps {
   onSuccess?: () => void
@@ -116,7 +117,8 @@ export default function SavingsGoalForm({ onSuccess }: SavingsGoalFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <Card variant="default" padding="lg">
+      <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="block text-sm font-semibold text-secondary-700 mb-2">
           Nome da Meta
@@ -221,15 +223,18 @@ export default function SavingsGoalForm({ onSuccess }: SavingsGoalFormProps) {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-primary hover:shadow-card-hover shadow-button transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        <Target className="w-5 h-5" />
-        {loading ? 'Criando...' : 'Criar Meta de Economia'}
-      </button>
-    </form>
+      <div className="pt-4 border-t border-secondary-200">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <Target className="w-5 h-5" />
+          {loading ? 'Criando...' : 'Criar Meta de Economia'}
+        </button>
+      </div>
+      </form>
+    </Card>
   )
 }
 

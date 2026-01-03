@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { CreditCard, User } from 'lucide-react'
+import Card from '@/components/ui/Card'
 
 interface Category {
   id: string
@@ -17,6 +18,13 @@ interface UserData {
   email: string
 }
 
+interface CreditCard {
+  id: string
+  name: string
+  limit: number
+  paymentDay: number
+}
+
 export default function InstallmentForm() {
   const router = useRouter()
   const { user: currentUser } = useAuth()
@@ -28,12 +36,15 @@ export default function InstallmentForm() {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
   const [categories, setCategories] = useState<Category[]>([])
   const [users, setUsers] = useState<UserData[]>([])
+  const [creditCards, setCreditCards] = useState<CreditCard[]>([])
+  const [creditCardId, setCreditCardId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     fetchCategories()
     fetchUsers()
+    fetchCreditCards()
   }, [])
 
   useEffect(() => {
@@ -71,25 +82,43 @@ export default function InstallmentForm() {
     }
   }
 
+  const fetchCreditCards = async () => {
+    try {
+      const response = await fetch('/api/credit-cards')
+      if (response.ok) {
+        const data = await response.json()
+        setCreditCards(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar cartões de crédito:', error)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
     try {
+      const requestBody: any = {
+        description,
+        totalAmount: parseFloat(totalAmount),
+        installments: parseInt(installments),
+        categoryId,
+        startDate,
+        userId: userId || undefined,
+      }
+
+      if (creditCardId) {
+        requestBody.creditCardId = creditCardId
+      }
+
       const response = await fetch('/api/installments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          description,
-          totalAmount: parseFloat(totalAmount),
-          installments: parseInt(installments),
-          categoryId,
-          startDate,
-          userId: userId || undefined,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       if (response.ok) {
@@ -112,7 +141,8 @@ export default function InstallmentForm() {
     : '0.00'
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <Card variant="default" padding="lg">
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-semibold text-secondary-700 mb-2">
           Descrição
@@ -187,10 +217,10 @@ export default function InstallmentForm() {
         </label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
-            <select
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+          <select
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
             required
           >
             {users.length === 0 ? (
@@ -205,6 +235,29 @@ export default function InstallmentForm() {
           </select>
         </div>
       </div>
+
+      {creditCards.length > 0 && (
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 mb-2">
+            Cartão de Crédito (opcional)
+          </label>
+          <div className="relative">
+            <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+            <select
+              value={creditCardId}
+              onChange={(e) => setCreditCardId(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-secondary-300 rounded-xl text-secondary-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-base"
+            >
+              <option value="">Não usar cartão de crédito</option>
+              {creditCards.map((card) => (
+                <option key={card.id} value={card.id}>
+                  {card.name} - Limite: R$ {card.limit.toFixed(2)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-semibold text-secondary-700 mb-2">
@@ -234,14 +287,17 @@ export default function InstallmentForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        <CreditCard className="w-5 h-5" />
-        {loading ? 'Criando...' : 'Criar Parcelamento'}
-      </button>
-    </form>
+      <div className="pt-4 border-t border-secondary-200">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3.5 rounded-xl font-semibold text-white gradient-primary hover:shadow-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <CreditCard className="w-5 h-5" />
+          {loading ? 'Criando...' : 'Criar Parcelamento'}
+        </button>
+      </div>
+      </form>
+    </Card>
   )
 }

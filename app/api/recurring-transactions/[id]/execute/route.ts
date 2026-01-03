@@ -90,6 +90,7 @@ export async function POST(
         categoryId: recurringTransaction.categoryId,
         userId: recurringTransaction.userId,
         date: recurringTransaction.nextDueDate,
+        creditCardId: recurringTransaction.creditCardId || null,
       },
       include: {
         category: true,

@@ -58,6 +58,7 @@ export async function POST(
         date: nextDate,
         isInstallment: true,
         installmentId: installment.id,
+        creditCardId: installment.creditCardId || null,
       },
     })
 

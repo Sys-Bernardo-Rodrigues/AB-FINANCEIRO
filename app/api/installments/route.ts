@@ -11,6 +11,7 @@ const installmentSchema = z.object({
   categoryId: z.string().uuid('Categoria inválida'),
   startDate: z.string().optional(),
   userId: z.string().uuid('Usuário inválido').optional(),
+  creditCardId: z.string().uuid('Cartão de crédito inválido').optional(),
 })
 
 export async function GET(request: NextRequest) {
@@ -103,6 +104,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verificar se creditCardId é válido (se fornecido)
+    if (data.creditCardId) {
+      const creditCard = await prisma.creditCard.findFirst({
+        where: {
+          id: data.creditCardId,
+          userId: targetUserId,
+        },
+      })
+      
+      if (!creditCard) {
+        return NextResponse.json(
+          { error: 'Cartão de crédito não encontrado' },
+          { status: 404 }
+        )
+      }
+    }
+
     const installmentAmount = data.totalAmount / data.installments
 
     // Criar o parcelamento
@@ -114,6 +132,7 @@ export async function POST(request: NextRequest) {
         categoryId: data.categoryId,
         userId: targetUserId,
         startDate: data.startDate ? new Date(data.startDate) : new Date(),
+        creditCardId: data.creditCardId || null,
       },
       include: {
         category: true,
@@ -131,6 +150,7 @@ export async function POST(request: NextRequest) {
         date: data.startDate ? new Date(data.startDate) : new Date(),
         isInstallment: true,
         installmentId: installment.id,
+        creditCardId: data.creditCardId || null,
       },
     })
 

@@ -25,6 +25,7 @@ model User {
   savingsGoals  SavingsGoal[]
   notifications Notification[]
   receipts      Receipt[]
+  creditCards   CreditCard[]
 
   @@map("users")
 }
@@ -64,6 +65,8 @@ model Transaction {
   scheduledDate   DateTime?
   planId          String?
   plan            Plan?           @relation(fields: [planId], references: [id])
+  creditCardId    String?
+  creditCard      CreditCard?     @relation(fields: [creditCardId], references: [id])
   receipts        Receipt[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -81,6 +84,8 @@ model Installment {
   category        Category        @relation(fields: [categoryId], references: [id])
   userId          String
   user            User            @relation(fields: [userId], references: [id])
+  creditCardId    String?
+  creditCard      CreditCard?     @relation(fields: [creditCardId], references: [id])
   startDate       DateTime        @default(now())
   status          InstallmentStatus @default(ACTIVE)
   transactions    Transaction[]
@@ -163,6 +168,8 @@ model RecurringTransaction {
   category      Category            @relation(fields: [categoryId], references: [id])
   userId        String
   user          User                @relation(fields: [userId], references: [id])
+  creditCardId  String?
+  creditCard    CreditCard?         @relation(fields: [creditCardId], references: [id])
   isActive      Boolean             @default(true)
   lastExecuted  DateTime?
   createdAt     DateTime            @default(now())
@@ -236,5 +243,22 @@ model Receipt {
   @@index([userId])
   @@index([transactionId])
   @@map("receipts")
+}
+
+model CreditCard {
+  id                  String                @id @default(uuid())
+  name                String
+  limit               Float
+  paymentDay          Int                   // Dia do mês (1-31)
+  userId              String
+  user                User                  @relation(fields: [userId], references: [id])
+  transactions        Transaction[]
+  installments        Installment[]
+  recurringTransactions RecurringTransaction[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@index([userId])
+  @@map("credit_cards")
 }
 

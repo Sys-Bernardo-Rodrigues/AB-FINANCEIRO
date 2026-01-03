@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
               categoryId: recurring.categoryId,
               userId: recurring.userId,
               date: recurring.nextDueDate,
+              creditCardId: recurring.creditCardId || null,
             },
           })
 

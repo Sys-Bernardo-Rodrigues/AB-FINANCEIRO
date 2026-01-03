@@ -33,6 +33,13 @@ interface Installment {
   status: string
 }
 
+interface CreditCard {
+  id: string
+  name: string
+  limit: number
+  paymentDay: number
+}
+
 export default function TransactionForm() {
   const router = useRouter()
   const { user: currentUser } = useAuth()
@@ -48,6 +55,8 @@ export default function TransactionForm() {
   const [users, setUsers] = useState<UserData[]>([])
   const [installments, setInstallments] = useState<Installment[]>([])
   const [installmentId, setInstallmentId] = useState('')
+  const [creditCards, setCreditCards] = useState<CreditCard[]>([])
+  const [creditCardId, setCreditCardId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
@@ -59,6 +68,7 @@ export default function TransactionForm() {
     fetchCategories()
     fetchUsers()
     fetchInstallments()
+    fetchCreditCards()
   }, [])
 
   useEffect(() => {
@@ -117,6 +127,18 @@ export default function TransactionForm() {
       }
     } catch (error) {
       console.error('Erro ao buscar parcelamentos:', error)
+    }
+  }
+
+  const fetchCreditCards = async () => {
+    try {
+      const response = await fetch('/api/credit-cards')
+      if (response.ok) {
+        const data = await response.json()
+        setCreditCards(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar cartões de crédito:', error)
     }
   }
 
@@ -221,6 +243,11 @@ export default function TransactionForm() {
       // Adicionar installmentId se fornecido
       if (installmentId) {
         transactionData.installmentId = installmentId
+      }
+
+      // Adicionar creditCardId se fornecido (apenas para despesas)
+      if (creditCardId && type === 'EXPENSE') {
+        transactionData.creditCardId = creditCardId
       }
 
       const response = await fetch('/api/transactions', {
@@ -562,6 +589,22 @@ export default function TransactionForm() {
                     }))
               }
             />
+
+            {type === 'EXPENSE' && creditCards.length > 0 && (
+              <Select
+                label="Cartão de Crédito (opcional)"
+                value={creditCardId}
+                onChange={(e) => setCreditCardId(e.target.value)}
+                leftIcon={<CreditCard className="w-5 h-5" />}
+                options={[
+                  { value: '', label: 'Não usar cartão de crédito' },
+                  ...creditCards.map((card) => ({
+                    value: card.id,
+                    label: `${card.name} - Limite: R$ ${card.limit.toFixed(2)}`,
+                  })),
+                ]}
+              />
+            )}
           </div>
 
           {/* Data e Agendamento */}

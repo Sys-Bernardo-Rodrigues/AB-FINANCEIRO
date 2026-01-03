@@ -14,8 +14,18 @@ export default function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
   const [showIOSModal, setShowIOSModal] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
 
   useEffect(() => {
+    // Só executar no cliente
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return
+    }
+
+    // Detectar iOS
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    setIsIOS(ios)
+
     // Verificar se já está instalado
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true)
@@ -27,12 +37,9 @@ export default function PWAInstallPrompt() {
       setIsInstalled(true)
       return
     }
-
-    // Detectar iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
     
     // Para iOS, mostrar prompt após 5 segundos (não há evento beforeinstallprompt)
-    if (isIOS) {
+    if (ios) {
       const dismissed = localStorage.getItem('pwa-install-dismissed')
       if (!dismissed) {
         setTimeout(() => {
@@ -73,7 +80,7 @@ export default function PWAInstallPrompt() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
       // Para iOS, mostrar modal com instruções
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      if (isIOS) {
         setShowIOSModal(true)
         setShowPrompt(false)
       }
@@ -103,8 +110,6 @@ export default function PWAInstallPrompt() {
     // Salvar no localStorage para não mostrar novamente por 7 dias
     localStorage.setItem('pwa-install-dismissed', Date.now().toString())
   }
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   
   // Verificar se já foi dispensado
   useEffect(() => {
