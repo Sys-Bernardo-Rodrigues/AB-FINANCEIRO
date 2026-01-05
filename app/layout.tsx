@@ -1,36 +1,30 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from '@/lib/auth-context'
-import PWARegister from '@/components/PWARegister'
-import OfflineIndicator from '@/components/OfflineIndicator'
-import PWAInstallPrompt from '@/components/PWAInstallPrompt'
-import IOSMetaTags from '@/components/IOSMetaTags'
-import { ToastContainer } from '@/components/ui/Toast'
+import { Providers } from './providers'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-poppins',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'AB Financeiro',
-  description: 'Sistema de controle financeiro pessoal',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  manifest: '/manifest.json',
-  themeColor: '#6366f1',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'AB Financeiro',
-  },
-  icons: {
-    icon: [
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/apple-icon-180x180.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
+  title: 'AB Financeiro - Controle Financeiro Pessoal',
+  description: 'Sistema de controle financeiro pessoal e familiar',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
@@ -39,17 +33,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
-      <body className={inter.className}>
-        <IOSMetaTags />
-        <AuthProvider>
-          {children}
-          <PWARegister />
-          <OfflineIndicator />
-          <PWAInstallPrompt />
-          <ToastContainer />
-        </AuthProvider>
+    <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
+

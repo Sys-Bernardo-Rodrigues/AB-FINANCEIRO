@@ -800,3 +800,4 @@ Todas as APIs retornam erros no formato:
 - **404 Not Found**: Recurso não encontrado
 - **500 Internal Server Error**: Erro do servidor
 
+

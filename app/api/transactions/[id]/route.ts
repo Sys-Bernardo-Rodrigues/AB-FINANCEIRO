@@ -10,6 +10,7 @@ const transactionSchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE']).optional(),
   categoryId: z.string().uuid().optional(),
   date: z.string().optional(),
+  userId: z.string().uuid().optional(),
 })
 
 export async function GET(
@@ -25,13 +26,24 @@ export async function GET(
       )
     }
 
+    // Buscar transação - verificar se pertence ao usuário ou grupo familiar
+    const { getFamilyGroupUserIds } = await import('@/lib/family-groups')
+    const familyUserIds = await getFamilyGroupUserIds()
+    
     const transaction = await prisma.transaction.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
       include: { 
         category: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         receipts: {
           orderBy: {
             uploadedAt: 'desc',
@@ -76,11 +88,14 @@ export async function PUT(
     const body = await request.json()
     const data = transactionSchema.parse(body)
 
-    // Buscar transação existente com relacionamentos
+    // Buscar transação existente - verificar se pertence ao usuário ou grupo familiar
+    const { getFamilyGroupUserIds } = await import('@/lib/family-groups')
+    const familyUserIds = await getFamilyGroupUserIds()
+    
     const existingTransaction = await prisma.transaction.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
       include: {
         plan: true,
@@ -107,6 +122,11 @@ export async function PUT(
     if (data.type) updateData.type = data.type
     if (data.categoryId) updateData.categoryId = data.categoryId
     if (data.date) updateData.date = new Date(data.date)
+    
+    // Se userId foi fornecido e está no grupo familiar, atualizar
+    if (data.userId && familyUserIds.includes(data.userId)) {
+      updateData.userId = data.userId
+    }
 
     const transaction = await prisma.transaction.update({
       where: { id: params.id },
