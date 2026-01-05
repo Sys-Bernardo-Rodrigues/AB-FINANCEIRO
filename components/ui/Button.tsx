@@ -24,15 +24,15 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 touch-feedback disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95'
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-2xl transition-all duration-200 touch-feedback disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.97]'
 
   const variants = {
-    primary: 'bg-primary-600 text-white shadow-md hover:shadow-lg hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500',
-    success: 'bg-success-600 text-white shadow-md hover:shadow-lg hover:bg-success-700 focus:ring-success-500',
-    danger: 'bg-danger-600 text-white shadow-md hover:shadow-lg hover:bg-danger-700 focus:ring-danger-500',
-    warning: 'bg-warning-500 text-white shadow-md hover:shadow-lg hover:bg-warning-600 focus:ring-warning-500',
-    ghost: 'text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500',
+    primary: 'bg-primary-600 text-white shadow-lg hover:shadow-xl hover:bg-primary-700 focus:ring-primary-500 active:bg-primary-800',
+    secondary: 'bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500 active:bg-secondary-300',
+    success: 'bg-success-600 text-white shadow-lg hover:shadow-xl hover:bg-success-700 focus:ring-success-500 active:bg-success-800',
+    danger: 'bg-danger-600 text-white shadow-lg hover:shadow-xl hover:bg-danger-700 focus:ring-danger-500 active:bg-danger-800',
+    warning: 'bg-warning-500 text-white shadow-lg hover:shadow-xl hover:bg-warning-600 focus:ring-warning-500 active:bg-warning-700',
+    ghost: 'text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500 active:bg-secondary-200',
   }
 
   const sizes = {

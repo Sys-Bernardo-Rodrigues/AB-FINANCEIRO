@@ -209,9 +209,9 @@ export default function Dashboard() {
   const isCurrentMonth = selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()
 
   return (
-    <div className="space-y-4 animate-fade-in pb-20">
+    <div className="space-y-6 animate-fade-in pb-24">
       {/* Header com Seletor de Mês - Mobile First */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 flex-1">
           <button
             onClick={handlePreviousMonth}
@@ -253,16 +253,16 @@ export default function Dashboard() {
       </div>
 
       {/* Cards de Resumo do Mês - Mobile First */}
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         <BalanceCard 
           title={`Saldo de ${getMonthName(selectedMonth)}`}
           amount={data.balance}
-          icon={data.balance < 0 ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
+          icon={data.balance < 0 ? <TrendingDown className="w-6 h-6" /> : <TrendingUp className="w-6 h-6" />}
           type={data.balance < 0 ? "negative" : "balance"}
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div className="relative">
           <BalanceCard 
             title="Receitas do Mês"
@@ -302,40 +302,40 @@ export default function Dashboard() {
       </div>
 
       {/* Estatísticas do Mês - Mobile First */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-secondary-500" />
-            <span className="text-[10px] text-secondary-600">Média Diária Receitas</span>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <DollarSign className="w-4 h-4 text-secondary-400" />
+            <span className="text-xs text-secondary-500 font-medium">Média Diária Receitas</span>
           </div>
-          <p className="text-base font-bold text-success-600">
+          <p className="text-xl font-bold text-success-600">
             {formatCurrency(data.avgDailyIncome)}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <TrendingDownIcon className="w-3.5 h-3.5 text-secondary-500" />
-            <span className="text-[10px] text-secondary-600">Média Diária Despesas</span>
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingDownIcon className="w-4 h-4 text-secondary-400" />
+            <span className="text-xs text-secondary-500 font-medium">Média Diária Despesas</span>
           </div>
-          <p className="text-base font-bold text-danger-600">
+          <p className="text-xl font-bold text-danger-600">
             {formatCurrency(data.avgDailyExpense)}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Calendar className="w-3.5 h-3.5 text-secondary-500" />
-            <span className="text-[10px] text-secondary-600">Transações</span>
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="w-4 h-4 text-secondary-400" />
+            <span className="text-xs text-secondary-500 font-medium">Transações</span>
           </div>
-          <p className="text-base font-bold text-secondary-900">
+          <p className="text-xl font-bold text-secondary-900">
             {data.metrics?.totalTransactions || 0}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-3 border border-secondary-200 shadow-mobile">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Target className="w-3.5 h-3.5 text-secondary-500" />
-            <span className="text-[10px] text-secondary-600">Taxa Poupança</span>
+        <div className="bg-white rounded-2xl p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-4 h-4 text-secondary-400" />
+            <span className="text-xs text-secondary-500 font-medium">Taxa Poupança</span>
           </div>
-          <p className={`text-base font-bold ${
+          <p className={`text-xl font-bold ${
             (data.metrics?.savingsRate || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
           }`}>
             {(data.metrics?.savingsRate || 0) >= 0 ? '+' : ''}{(data.metrics?.savingsRate || 0).toFixed(1)}%
@@ -346,8 +346,8 @@ export default function Dashboard() {
       {/* Transações Agendadas Próximas */}
       {scheduledTransactions.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary-600" />
               Transações Agendadas
             </h2>
@@ -355,11 +355,11 @@ export default function Dashboard() {
               Ver todas →
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {scheduledTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="bg-white rounded-xl p-4 border border-secondary-200 shadow-card hover:shadow-card-hover transition-all"
+                className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
@@ -394,8 +394,8 @@ export default function Dashboard() {
       {/* Transações Recorrentes Próximas */}
       {recurringTransactions.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
               <Repeat className="w-5 h-5 text-primary-600" />
               Próximas Recorrentes
             </h2>
@@ -403,7 +403,7 @@ export default function Dashboard() {
               Ver todas →
             </Link>
           </div>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {recurringTransactions.map((transaction) => (
               <RecurringTransactionCard key={transaction.id} recurringTransaction={transaction} />
             ))}
@@ -414,16 +414,16 @@ export default function Dashboard() {
       {/* Metas de Economia Ativas */}
       {savingsGoals.length > 0 && (
         <div className="animate-slide-up">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
-              <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <PiggyBank className="w-5 h-5 text-primary-600" />
               Metas de Economia
             </h2>
-            <Link href="/savings-goals" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
+            <Link href="/savings-goals" className="text-sm text-primary-600 hover:text-primary-700 font-semibold transition-colors">
               Ver todas →
             </Link>
           </div>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {savingsGoals.map((goal) => (
               <SavingsGoalCard key={goal.id} goal={goal} />
             ))}
@@ -434,16 +434,16 @@ export default function Dashboard() {
       {/* Parcelamentos Ativos */}
       {installments.length > 0 && (
         <div className="animate-slide-up">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary-600" />
               Parcelamentos Ativos
             </h2>
-            <Link href="/installments" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
+            <Link href="/installments" className="text-sm text-primary-600 hover:text-primary-700 font-semibold transition-colors">
               Ver todos →
             </Link>
           </div>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {installments.map((installment) => (
               <InstallmentCard key={installment.id} installment={installment} />
             ))}
@@ -454,16 +454,16 @@ export default function Dashboard() {
       {/* Planejamentos Ativos */}
       {plans.length > 0 && (
         <div className="animate-slide-up">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
-              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary-600" />
               Planejamentos
             </h2>
-            <Link href="/plans" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
+            <Link href="/plans" className="text-sm text-primary-600 hover:text-primary-700 font-semibold transition-colors">
               Ver todos →
             </Link>
           </div>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {plans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} />
             ))}
@@ -579,12 +579,12 @@ export default function Dashboard() {
 
       {/* Lista de Transações */}
       <div className="animate-slide-up">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl font-bold text-secondary-900 flex items-center gap-2">
-            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-secondary-900 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-primary-600" />
             Transações Recentes
           </h2>
-          <Link href="/transactions" className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-semibold hover:underline transition-colors">
+          <Link href="/transactions" className="text-sm text-primary-600 hover:text-primary-700 font-semibold transition-colors">
             Ver todas →
           </Link>
         </div>

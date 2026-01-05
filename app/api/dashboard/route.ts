@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
 import { logToRedis } from '@/lib/redis'
 import { notifyLowBalance } from '@/lib/notifications'
 
@@ -13,6 +14,9 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // Obter IDs de todos os usuários do grupo de família
+    const familyUserIds = await getFamilyGroupUserIds()
 
     // Obter parâmetros de data (mês e ano) ou usar mês atual
     const searchParams = request.nextUrl.searchParams
@@ -29,7 +33,7 @@ export async function GET(request: NextRequest) {
     // Buscar transações do mês atual (apenas confirmadas, não agendadas)
     const transactions = await prisma.transaction.findMany({
       where: {
-        userId: user.id,
+        userId: { in: familyUserIds },
         date: {
           gte: startOfMonth,
           lte: endOfMonth,
@@ -164,7 +168,7 @@ export async function GET(request: NextRequest) {
 
     const previousMonthTransactions = await prisma.transaction.findMany({
       where: {
-        userId: user.id,
+        userId: { in: familyUserIds },
         date: {
           gte: startOfPreviousMonth,
           lte: endOfPreviousMonth,

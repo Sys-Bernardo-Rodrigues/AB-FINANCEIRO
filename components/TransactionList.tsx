@@ -130,7 +130,7 @@ export default function TransactionList({ transactions: propTransactions, onDele
 
   return (
     <>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {transactions.map((transaction, index) => {
           const isIncome = transaction.type === 'INCOME'
           return (
@@ -139,36 +139,36 @@ export default function TransactionList({ transactions: propTransactions, onDele
               variant="default"
               padding="md"
               hover
-              className="animate-fade-in group"
+              className="animate-fade-in group active:scale-[0.98]"
               style={{ animationDelay: `${index * 30}ms` }}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${
                       isIncome 
                         ? 'bg-success-50 text-success-600' 
                         : 'bg-danger-50 text-danger-600'
                     }`}
                   >
                     {isIncome ? (
-                      <ArrowUpCircle className="w-5 h-5" />
+                      <ArrowUpCircle className="w-6 h-6" />
                     ) : (
-                      <ArrowDownCircle className="w-5 h-5" />
+                      <ArrowDownCircle className="w-6 h-6" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-secondary-900 truncate text-sm">
+                    <p className="font-semibold text-secondary-900 truncate text-base">
                       {transaction.description}
                     </p>
-                    <div className="flex items-center gap-1.5 text-xs text-secondary-500 mt-0.5">
+                    <div className="flex items-center gap-2 text-sm text-secondary-400 mt-1">
                       <span>{transaction.category.name}</span>
                       <span>•</span>
                       <span>{formatDateShort(transaction.date)}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-3 flex-shrink-0">
                   {/* Indicador de comprovante */}
                   {transaction.receipts && transaction.receipts.length > 0 && (
                     <button
@@ -176,16 +176,16 @@ export default function TransactionList({ transactions: propTransactions, onDele
                         setSelectedReceipt(transaction.receipts![0])
                         setReceiptModalOpen(true)
                       }}
-                      className="p-1.5 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-all touch-feedback"
+                      className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-all touch-feedback active:scale-95"
                       title={`Ver comprovante (${transaction.receipts.length})`}
                       aria-label="Ver comprovante"
                     >
-                      <FileImage className="w-4 h-4" />
+                      <FileImage className="w-5 h-5" />
                     </button>
                   )}
                   <div className="text-right">
                     <p
-                      className={`font-bold text-base ${
+                      className={`font-bold text-lg ${
                         isIncome 
                           ? 'text-success-600' 
                           : 'text-danger-600'
@@ -197,11 +197,11 @@ export default function TransactionList({ transactions: propTransactions, onDele
                   </div>
                   <button
                     onClick={() => handleDeleteClick(transaction)}
-                    className="p-1.5 text-secondary-400 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-all touch-feedback opacity-0 group-hover:opacity-100"
+                    className="p-2 text-secondary-300 hover:text-danger-600 hover:bg-danger-50 rounded-xl transition-all touch-feedback active:scale-95 opacity-0 group-hover:opacity-100"
                     title="Deletar transação"
                     aria-label="Deletar transação"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
               </div>

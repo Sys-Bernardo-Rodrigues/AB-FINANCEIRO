@@ -26,6 +26,7 @@ model User {
   notifications Notification[]
   receipts      Receipt[]
   creditCards   CreditCard[]
+  familyGroups  FamilyGroupMember[]
 
   @@map("users")
 }
@@ -260,5 +261,37 @@ model CreditCard {
 
   @@index([userId])
   @@map("credit_cards")
+}
+
+model FamilyGroup {
+  id            String              @id @default(uuid())
+  name          String
+  description   String?
+  createdBy     String              // ID do usuário que criou o grupo
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  members       FamilyGroupMember[]
+
+  @@map("family_groups")
+}
+
+model FamilyGroupMember {
+  id            String        @id @default(uuid())
+  familyGroupId String
+  familyGroup   FamilyGroup   @relation(fields: [familyGroupId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role          FamilyRole    @default(MEMBER)
+  joinedAt      DateTime      @default(now())
+
+  @@unique([familyGroupId, userId])
+  @@index([userId])
+  @@index([familyGroupId])
+  @@map("family_group_members")
+}
+
+enum FamilyRole {
+  ADMIN
+  MEMBER
 }
 

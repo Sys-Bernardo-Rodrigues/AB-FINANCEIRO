@@ -11,7 +11,7 @@
 }
 
 body {
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background: #f5f5f5;
   color: #0f172a;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -22,6 +22,7 @@ body {
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
   overscroll-behavior-y: none;
+  overflow-x: hidden;
 }
 
 /* Ajustes para iPhone 14 e dispositivos móveis */
@@ -105,9 +106,17 @@ body {
     text-wrap: balance;
   }
   
-  /* Gradientes modernos e suaves */
+  /* Gradientes Nubank */
   .gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #8A05BE 0%, #A855F7 100%);
+  }
+  
+  .gradient-nubank {
+    background: linear-gradient(135deg, #8A05BE 0%, #E91E63 100%);
+  }
+  
+  .gradient-nubank-card {
+    background: linear-gradient(180deg, #8A05BE 0%, #6B21A8 100%);
   }
   
   .gradient-success {
@@ -128,17 +137,17 @@ body {
   
   /* Sombras modernas com profundidade */
   .shadow-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
   }
   
   .shadow-card-hover {
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
+  
   .shadow-elevated {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 6px 12px rgba(0, 0, 0, 0.04);
   }
 
   /* Glassmorphism effect - Mobile First */

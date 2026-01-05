@@ -40,8 +40,13 @@ export async function GET(request: NextRequest) {
     const minAmount = searchParams.get('minAmount')
     const maxAmount = searchParams.get('maxAmount')
 
+    // Importar função para obter IDs do grupo de família
+    const { getFamilyGroupUserIds } = await import('@/lib/family-groups')
+    const familyUserIds = await getFamilyGroupUserIds()
+
     // Se allUsers for true, não filtrar por userId (mostrar todas)
-    const where: any = allUsers ? {} : { userId: user.id }
+    // Caso contrário, mostrar apenas do grupo de família
+    const where: any = allUsers ? {} : { userId: { in: familyUserIds } }
     if (type) {
       where.type = type as 'INCOME' | 'EXPENSE'
     }

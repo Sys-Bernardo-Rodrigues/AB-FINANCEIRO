@@ -20,7 +20,8 @@ import {
   Flag,
   Tag,
   Users,
-  List
+  List,
+  UsersRound
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -51,6 +52,7 @@ export default function Navigation() {
     { icon: Receipt, label: 'Comprovantes', href: '/receipts' },
     { icon: Flag, label: 'Metas', href: '/savings-goals' },
     { icon: Bell, label: 'Notificações', href: '/notifications' },
+    { icon: UsersRound, label: 'Grupos de Família', href: '/family-groups' },
     { icon: List, label: 'Gerenciar Transações', href: '/transactions/manage' },
     { icon: Tag, label: 'Gerenciar Categorias', href: '/categories/manage' },
     { icon: Users, label: 'Gerenciar Usuários', href: '/users/manage' },
@@ -71,9 +73,9 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 z-50 shadow-lg safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-secondary-100 z-50 safe-area-bottom">
         <div className="container mx-auto px-2 sm:px-4">
-          <div className="flex items-center justify-around py-2">
+          <div className="flex items-center justify-around py-3">
             {mainNavItems.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
@@ -81,14 +83,19 @@ export default function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex flex-col items-center gap-1 py-2 px-3 sm:px-4 rounded-xl transition-all touch-manipulation active:scale-95 ${
+                  className={`flex flex-col items-center gap-1.5 py-2 px-4 rounded-2xl transition-all touch-manipulation active:scale-90 ${
                     active
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50'
+                      ? 'text-primary-600'
+                      : 'text-secondary-400'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${active ? 'text-primary-600' : ''}`} />
-                  <span className={`text-[10px] sm:text-xs font-medium ${active ? 'text-primary-600' : ''}`}>
+                  <div className={`relative ${active ? 'scale-110' : ''} transition-transform`}>
+                    <Icon className={`w-6 h-6 ${active ? 'text-primary-600' : ''}`} />
+                    {active && (
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full" />
+                    )}
+                  </div>
+                  <span className={`text-[11px] font-semibold ${active ? 'text-primary-600' : 'text-secondary-400'}`}>
                     {item.label}
                   </span>
                 </Link>
@@ -97,15 +104,22 @@ export default function Navigation() {
             {/* Botão "Mais" */}
             <button
               onClick={() => setShowMoreMenu(true)}
-              className={`flex flex-col items-center gap-1 py-2 px-3 sm:px-4 rounded-xl transition-all touch-manipulation active:scale-95 ${
+              className={`flex flex-col items-center gap-1.5 py-2 px-4 rounded-2xl transition-all touch-manipulation active:scale-90 ${
                 moreNavItems.some(item => isActive(item.href))
-                  ? 'text-primary-600 bg-primary-50'
-                  : 'text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50'
+                  ? 'text-primary-600'
+                  : 'text-secondary-400'
               }`}
               aria-label="Mais opções"
             >
-              <MoreVertical className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-[10px] sm:text-xs font-medium">Mais</span>
+              <div className={`relative ${moreNavItems.some(item => isActive(item.href)) ? 'scale-110' : ''} transition-transform`}>
+                <MoreVertical className="w-6 h-6" />
+                {moreNavItems.some(item => isActive(item.href)) && (
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full" />
+                )}
+              </div>
+              <span className={`text-[11px] font-semibold ${moreNavItems.some(item => isActive(item.href)) ? 'text-primary-600' : 'text-secondary-400'}`}>
+                Mais
+              </span>
             </button>
           </div>
         </div>

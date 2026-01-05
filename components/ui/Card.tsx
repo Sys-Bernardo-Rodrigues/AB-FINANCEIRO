@@ -20,9 +20,9 @@ export default function Card({
   const baseClasses = 'rounded-2xl transition-all duration-200'
 
   const variants = {
-    default: 'bg-white border border-secondary-200 shadow-mobile',
+    default: 'bg-white border-0 shadow-md',
     glass: 'glass-card border border-white/50',
-    elevated: 'bg-white border border-secondary-200 shadow-mobile-lg',
+    elevated: 'bg-white border-0 shadow-lg',
     outlined: 'bg-white border-2 border-secondary-200',
   }
 

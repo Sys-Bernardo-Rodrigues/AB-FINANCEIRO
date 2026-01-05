@@ -30,11 +30,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include', // Garante que os cookies são enviados
+      })
+      
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
       } else {
+        // Se retornar 401, limpar o cookie inválido
+        if (response.status === 401) {
+          // Limpar cookie inválido fazendo logout silencioso
+          try {
+            await fetch('/api/auth/logout', { 
+              method: 'POST',
+              credentials: 'include',
+            })
+          } catch {
+            // Ignorar erro ao limpar cookie
+          }
+        }
         setUser(null)
       }
     } catch (error) {
@@ -50,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
+      credentials: 'include', // Garante que os cookies são enviados e recebidos
     })
 
     if (!response.ok) {
@@ -68,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
+      credentials: 'include', // Garante que os cookies são enviados e recebidos
     })
 
     if (!response.ok) {
@@ -82,10 +99,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    setUser(null)
-    router.push('/login')
-    router.refresh()
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+    } finally {
+      setUser(null)
+      router.push('/login')
+      router.refresh()
+    }
   }
 
   return (
