@@ -801,3 +801,7 @@ Todas as APIs retornam erros no formato:
 - **500 Internal Server Error**: Erro do servidor
 
 
+
+
+
+

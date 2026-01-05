@@ -23,6 +23,7 @@ interface Transaction {
   isScheduled: boolean
   scheduledDate?: string
   creditCardId?: string
+  planId?: string
 }
 
 interface Category {
@@ -142,6 +143,19 @@ export default function EditTransactionPage() {
       setPlans(data)
     } catch (error) {
       console.error('Erro ao carregar planejamentos:', error)
+    }
+  }
+
+  const loadFamilyGroups = async () => {
+    try {
+      const groups = await apiRequest<FamilyGroup[]>('/family-groups')
+      // Filtrar apenas grupos com mais de 1 membro
+      const groupsWithMultipleMembers = groups.filter(
+        (group) => group.members.length > 1
+      )
+      setFamilyGroups(groupsWithMultipleMembers)
+    } catch (error) {
+      console.error('Erro ao carregar grupos de família:', error)
     }
   }
 
@@ -342,11 +356,11 @@ export default function EditTransactionPage() {
                   setFormData((prev) => ({ ...prev, assignedUserId: e.target.value }))
                 }
                 options={(() => {
-                  const allMembers = new Map<string, { id: string; label: string }>()
+                  const allMembers = new Map<string, { value: string; label: string }>()
                   
                   if (user) {
                     allMembers.set(user.id, {
-                      id: user.id,
+                      value: user.id,
                       label: `Eu (${user.name})`,
                     })
                   }
@@ -355,7 +369,7 @@ export default function EditTransactionPage() {
                     group.members.forEach((member) => {
                       if (!allMembers.has(member.userId)) {
                         allMembers.set(member.userId, {
-                          id: member.userId,
+                          value: member.userId,
                           label: member.userName,
                         })
                       }

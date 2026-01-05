@@ -373,12 +373,12 @@ export default function NewTransactionPage() {
                 }
                 options={(() => {
                   // Coletar todos os membros únicos de todos os grupos
-                  const allMembers = new Map<string, { id: string; label: string }>()
+                  const allMembers = new Map<string, { value: string; label: string }>()
                   
                   // Adicionar "Eu" primeiro
                   if (user) {
                     allMembers.set(user.id, {
-                      id: user.id,
+                      value: user.id,
                       label: `Eu (${user.name})`,
                     })
                   }
@@ -388,7 +388,7 @@ export default function NewTransactionPage() {
                     group.members.forEach((member) => {
                       if (!allMembers.has(member.userId)) {
                         allMembers.set(member.userId, {
-                          id: member.userId,
+                          value: member.userId,
                           label: member.userName,
                         })
                       }

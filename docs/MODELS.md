@@ -468,3 +468,7 @@ Representa um comprovante anexado a uma transação.
 5. **Soft Delete**: O sistema não possui soft delete. Quando um recurso é deletado, é removido permanentemente (exceto transações que podem ter restrições).
 
 
+
+
+
+

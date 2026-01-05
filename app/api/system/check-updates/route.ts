@@ -131,6 +131,7 @@ export async function GET() {
       // Se não for um repositório git, retornar apenas versão
       return NextResponse.json({
         currentVersion,
+        currentCommit: '',
         hasUpdates: false,
         error: 'Repositório Git não encontrado',
       } as UpdateInfo)
@@ -143,4 +144,7 @@ export async function GET() {
     )
   }
 }
+
+
+
 

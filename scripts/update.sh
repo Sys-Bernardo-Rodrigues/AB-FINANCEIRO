@@ -274,9 +274,9 @@ if [ "$NO_BUILD" = false ]; then
         echo -e "${YELLOW}  Aviso: Erro ao gerar cliente Prisma${NC}"
     fi
     
-    # Executar migrações do banco (se necessário)
+    # Executar migrações do banco (produção usa deploy, não dev)
     echo "  Verificando migrações do banco de dados..."
-    if npm run db:migrate; then
+    if npm run db:migrate:deploy; then
         echo -e "${GREEN}  Migrações executadas com sucesso ✓${NC}"
     else
         echo -e "${YELLOW}  Aviso: Erro ao executar migrações (pode não ser necessário)${NC}"

@@ -714,3 +714,7 @@ formatDate('2026-01-05') // "05/01/2026"
 Estes exemplos cobrem os principais casos de uso. Adapte conforme necessário para seu framework frontend específico.
 
 
+
+
+
+
