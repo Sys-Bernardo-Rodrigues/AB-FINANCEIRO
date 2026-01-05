@@ -96,6 +96,38 @@ export async function POST(request: NextRequest) {
         // Não falhar completamente se o prisma falhar
       }
 
+      // Passo 5: Prisma migrate (se necessário)
+      try {
+        const { stdout: migrateOutput } = await execAsync('npx prisma migrate deploy', {
+          cwd: process.cwd(),
+          timeout: 60000, // 1 minuto
+        })
+        steps.push({ step: 'migrate', status: 'success', message: 'Migrações aplicadas com sucesso' })
+      } catch (error: any) {
+        steps.push({ 
+          step: 'migrate', 
+          status: 'error', 
+          message: `Erro nas migrações: ${error.message}` 
+        })
+        // Não falhar completamente se o migrate falhar
+      }
+
+      // Passo 6: Build da aplicação
+      try {
+        const { stdout: buildOutput } = await execAsync('npm run build', {
+          cwd: process.cwd(),
+          timeout: 300000, // 5 minutos
+        })
+        steps.push({ step: 'build', status: 'success', message: 'Build concluído com sucesso' })
+      } catch (error: any) {
+        steps.push({ 
+          step: 'build', 
+          status: 'error', 
+          message: `Erro no build: ${error.message}` 
+        })
+        // Não falhar completamente se o build falhar
+      }
+
       await logToRedis('info', 'Atualização do sistema concluída', {
         userId: user.id,
         steps: steps.map(s => s.step),
@@ -103,7 +135,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Sistema atualizado com sucesso',
+        message: 'Sistema atualizado com sucesso. Reinicie o servidor para aplicar as mudanças.',
         steps,
         requiresRestart: true,
       })
