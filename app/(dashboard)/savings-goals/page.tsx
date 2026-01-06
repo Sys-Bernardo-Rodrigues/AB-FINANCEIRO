@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { formatCurrency } from '@/lib/utils/format'
 import { apiRequest } from '@/lib/utils/api'
+import { formatDateForAPI } from '@/lib/utils/date-helpers'
 import { Plus, Target, TrendingUp } from 'lucide-react'
 
 interface SavingsGoal {
@@ -56,8 +57,8 @@ export default function SavingsGoalsPage() {
           description: formData.description || null,
           targetAmount: parseFloat(formData.targetAmount),
           period: 'CUSTOM',
-          startDate: new Date().toISOString(),
-          endDate: new Date(formData.endDate).toISOString(),
+          startDate: new Date().toISOString().split('T')[0],
+          endDate: formData.endDate,
         }),
       })
       setFormData({ name: '', description: '', targetAmount: '', endDate: '' })

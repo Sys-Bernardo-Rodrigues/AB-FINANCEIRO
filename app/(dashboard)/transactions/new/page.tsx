@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { apiRequest, apiRequestFormData } from '@/lib/utils/api'
+import { formatDateForAPI } from '@/lib/utils/date-helpers'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { ArrowLeft, Upload, FileText, X, Users } from 'lucide-react'
 
@@ -139,7 +140,7 @@ export default function NewTransactionPage() {
         amount: parseFloat(formData.amount),
         type: formData.type,
         categoryId: formData.categoryId,
-        date: new Date(formData.date).toISOString(),
+        date: formatDateForAPI(formData.date),
       }
 
       if (formData.creditCardId) {
@@ -152,7 +153,7 @@ export default function NewTransactionPage() {
 
       if (formData.isScheduled && formData.scheduledDate) {
         payload.isScheduled = true
-        payload.scheduledDate = new Date(formData.scheduledDate).toISOString()
+        payload.scheduledDate = formatDateForAPI(formData.scheduledDate)
       }
 
       // Se houver usuário selecionado e for diferente do usuário atual, atribuir a ele

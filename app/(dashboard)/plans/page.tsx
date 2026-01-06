@@ -82,8 +82,8 @@ export default function PlansPage() {
         body: JSON.stringify({
           ...formData,
           targetAmount: parseFloat(formData.targetAmount),
-          startDate: new Date(formData.startDate).toISOString(),
-          endDate: new Date(formData.endDate).toISOString(),
+          startDate: formData.startDate,
+          endDate: formData.endDate,
         }),
       })
       setFormData({

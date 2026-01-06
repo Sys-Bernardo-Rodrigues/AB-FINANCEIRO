@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { apiRequest } from '@/lib/utils/api'
+import { formatDateForAPI, formatDateForInput } from '@/lib/utils/date-helpers'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { ArrowLeft, Users } from 'lucide-react'
 
@@ -101,12 +102,12 @@ export default function EditTransactionPage() {
         amount: data.amount.toString(),
         type: data.type,
         categoryId: data.category.id,
-        date: data.date.split('T')[0],
+        date: formatDateForInput(data.date),
         creditCardId: data.creditCardId || '',
         planId: data.planId || '',
         isScheduled: data.isScheduled,
         scheduledDate: data.scheduledDate
-          ? data.scheduledDate.split('T')[0]
+          ? formatDateForInput(data.scheduledDate)
           : '',
         assignedUserId: transactionUserId,
         userId: transactionUserId,
@@ -169,7 +170,7 @@ export default function EditTransactionPage() {
         amount: parseFloat(formData.amount),
         type: formData.type,
         categoryId: formData.categoryId,
-        date: new Date(formData.date).toISOString(),
+        date: formatDateForAPI(formData.date),
       }
 
       if (formData.creditCardId) {
@@ -186,7 +187,7 @@ export default function EditTransactionPage() {
 
       if (formData.isScheduled && formData.scheduledDate) {
         payload.isScheduled = true
-        payload.scheduledDate = new Date(formData.scheduledDate).toISOString()
+        payload.scheduledDate = formatDateForAPI(formData.scheduledDate)
       } else {
         payload.isScheduled = false
       }

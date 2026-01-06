@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { apiRequest } from '@/lib/utils/api'
+import { formatDateForAPI } from '@/lib/utils/date-helpers'
 import { Plus, RefreshCw, Calendar, Edit, Trash2, Play, Pause } from 'lucide-react'
 
 interface RecurringTransaction {
@@ -114,8 +115,8 @@ export default function RecurringTransactionsPage() {
         body: JSON.stringify({
           ...formData,
           amount: parseFloat(formData.amount),
-          startDate: new Date(formData.startDate).toISOString(),
-          endDate: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
+          startDate: formData.startDate,
+          endDate: formData.endDate || undefined,
           creditCardId: formData.creditCardId || undefined,
         }),
       })

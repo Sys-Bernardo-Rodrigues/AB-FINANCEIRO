@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { apiRequest } from '@/lib/utils/api'
+import { formatDateForAPI } from '@/lib/utils/date-helpers'
 import { Plus, CreditCard, Calendar, CheckCircle, XCircle } from 'lucide-react'
 
 interface Installment {
@@ -103,7 +104,7 @@ export default function InstallmentsPage() {
           ...formData,
           totalAmount: parseFloat(formData.totalAmount),
           installments: parseInt(formData.installments),
-          startDate: new Date(formData.startDate).toISOString(),
+          startDate: formData.startDate,
           creditCardId: formData.creditCardId || undefined,
         }),
       })
