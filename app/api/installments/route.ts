@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -27,7 +29,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status')
 
-    const where: any = { userId: user.id }
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
+    const where: any = { userId: { in: familyUserIds } }
     if (status) {
       where.status = status
     }
@@ -131,7 +136,7 @@ export async function POST(request: NextRequest) {
         installments: data.installments,
         categoryId: data.categoryId,
         userId: targetUserId,
-        startDate: data.startDate ? new Date(data.startDate) : new Date(),
+        startDate: data.startDate ? parseLocalDate(data.startDate) : new Date(),
         creditCardId: data.creditCardId || null,
       },
       include: {

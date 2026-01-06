@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
 import { logToRedis } from '@/lib/redis'
 import { parseFormData } from '@/lib/form-parser'
 import { validateFile, saveFile } from '@/lib/file-upload'
@@ -18,7 +19,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const transactionId = searchParams.get('transactionId')
 
-    const where: any = { userId: user.id }
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
+    const where: any = { userId: { in: familyUserIds } }
     if (transactionId) {
       where.transactionId = transactionId
     }

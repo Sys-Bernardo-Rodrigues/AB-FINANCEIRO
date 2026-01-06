@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -62,10 +64,13 @@ export async function GET(
       )
     }
 
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
     const recurringTransaction = await prisma.recurringTransaction.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
       include: {
         category: true,
@@ -135,9 +140,9 @@ export async function PUT(
     if (data.type) updateData.type = data.type
     if (data.frequency) updateData.frequency = data.frequency
     if (data.categoryId) updateData.categoryId = data.categoryId
-    if (data.startDate) updateData.startDate = new Date(data.startDate)
+    if (data.startDate) updateData.startDate = parseLocalDate(data.startDate)
     if (data.endDate !== undefined) {
-      updateData.endDate = data.endDate ? new Date(data.endDate) : null
+      updateData.endDate = data.endDate ? parseLocalDate(data.endDate) : null
     }
     if (data.isActive !== undefined) updateData.isActive = data.isActive
 

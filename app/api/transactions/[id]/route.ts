@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -121,7 +122,7 @@ export async function PUT(
     if (data.amount !== undefined) updateData.amount = data.amount
     if (data.type) updateData.type = data.type
     if (data.categoryId) updateData.categoryId = data.categoryId
-    if (data.date) updateData.date = new Date(data.date)
+    if (data.date) updateData.date = parseLocalDate(data.date)
     
     // Se userId foi fornecido e está no grupo familiar, atualizar
     if (data.userId && familyUserIds.includes(data.userId)) {

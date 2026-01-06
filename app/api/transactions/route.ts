@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
 import { logToRedis } from '@/lib/redis'
 import { notifyHighExpense } from '@/lib/notifications'
+import { parseLocalDate } from '@/lib/utils/format'
 import { z } from 'zod'
 
 const transactionSchema = z.object({
@@ -179,8 +180,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-        const transactionDate = data.date ? new Date(data.date) : new Date()
-        const isScheduled = data.isScheduled && data.scheduledDate && new Date(data.scheduledDate) > new Date()
+        const transactionDate = data.date ? parseLocalDate(data.date) : new Date()
+        const isScheduled = data.isScheduled && data.scheduledDate && parseLocalDate(data.scheduledDate) > new Date()
         
         // Verificar se planId é válido (se fornecido)
         if (data.planId) {
@@ -244,7 +245,7 @@ export async function POST(request: NextRequest) {
             userId: targetUserId,
             date: transactionDate,
             isScheduled: isScheduled || false,
-            scheduledDate: isScheduled && data.scheduledDate ? new Date(data.scheduledDate) : null,
+            scheduledDate: isScheduled && data.scheduledDate ? parseLocalDate(data.scheduledDate) : null,
             planId: data.planId || null,
             installmentId: data.installmentId || null,
             isInstallment: !!data.installmentId,

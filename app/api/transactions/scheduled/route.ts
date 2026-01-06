@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
 import { logToRedis } from '@/lib/redis'
 
 export async function GET(request: NextRequest) {
@@ -17,8 +18,11 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') // 'pending', 'all'
     const limit = parseInt(searchParams.get('limit') || '50')
 
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
     const where: any = {
-      userId: user.id,
+      userId: { in: familyUserIds },
       isScheduled: true,
     }
 

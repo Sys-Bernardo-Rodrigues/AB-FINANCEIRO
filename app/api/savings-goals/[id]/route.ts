@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -28,10 +30,13 @@ export async function GET(
       )
     }
 
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
     const goal = await prisma.savingsGoal.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
     })
 
@@ -101,8 +106,8 @@ export async function PUT(
     if (data.description !== undefined) updateData.description = data.description
     if (data.targetAmount) updateData.targetAmount = data.targetAmount
     if (data.period) updateData.period = data.period
-    if (data.startDate) updateData.startDate = new Date(data.startDate)
-    if (data.endDate) updateData.endDate = new Date(data.endDate)
+    if (data.startDate) updateData.startDate = parseLocalDate(data.startDate)
+    if (data.endDate) updateData.endDate = parseLocalDate(data.endDate)
     if (data.currentAmount !== undefined) updateData.currentAmount = data.currentAmount
     if (data.status) updateData.status = data.status
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -26,10 +27,13 @@ export async function GET(
       )
     }
 
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
     const installment = await prisma.installment.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
       include: {
         category: true,

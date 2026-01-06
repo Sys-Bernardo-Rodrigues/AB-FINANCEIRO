@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -63,7 +65,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const isActive = searchParams.get('isActive')
 
-    const where: any = { userId: user.id }
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
+    const where: any = { userId: { in: familyUserIds } }
     if (isActive !== null) {
       where.isActive = isActive === 'true'
     }
@@ -116,11 +121,15 @@ export async function POST(request: NextRequest) {
     const data = recurringTransactionSchema.parse(body)
 
     // Validação de datas
-    if (data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {
-      return NextResponse.json(
-        { error: 'A data final deve ser posterior à data inicial' },
-        { status: 400 }
-      )
+    const startDate = parseLocalDate(data.startDate)
+    if (data.endDate) {
+      const endDate = parseLocalDate(data.endDate)
+      if (endDate <= startDate) {
+        return NextResponse.json(
+          { error: 'A data final deve ser posterior à data inicial' },
+          { status: 400 }
+        )
+      }
     }
 
     // Usar o userId fornecido ou o do usuário autenticado
@@ -170,7 +179,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const startDate = new Date(data.startDate)
     const nextDueDate = calculateNextDueDate(data.frequency, startDate, startDate)
 
     const recurringTransaction = await prisma.recurringTransaction.create({
@@ -182,7 +190,7 @@ export async function POST(request: NextRequest) {
         categoryId: data.categoryId,
         userId: targetUserId,
         startDate,
-        endDate: data.endDate ? new Date(data.endDate) : null,
+        endDate: data.endDate ? parseLocalDate(data.endDate) : null,
         nextDueDate,
         creditCardId: data.creditCardId || null,
       },

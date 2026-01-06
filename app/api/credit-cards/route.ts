@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -21,9 +22,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
     const creditCards = await prisma.creditCard.findMany({
       where: {
-        userId: user.id,
+        userId: { in: familyUserIds },
       },
       include: {
         transactions: {

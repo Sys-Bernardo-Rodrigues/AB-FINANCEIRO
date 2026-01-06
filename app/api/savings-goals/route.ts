@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/get-user'
+import { getFamilyGroupUserIds } from '@/lib/family-groups'
+import { parseLocalDate } from '@/lib/utils/format'
 import { logToRedis } from '@/lib/redis'
 import { z } from 'zod'
 
@@ -26,7 +28,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | null
 
-    const where: any = { userId: user.id }
+    // Obter IDs de todos os membros do grupo familiar
+    const familyUserIds = await getFamilyGroupUserIds()
+
+    const where: any = { userId: { in: familyUserIds } }
     if (status) {
       where.status = status
     }
@@ -88,7 +93,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const data = savingsGoalSchema.parse(body)
 
-    if (new Date(data.endDate) <= new Date(data.startDate)) {
+    const startDate = parseLocalDate(data.startDate)
+    const endDate = parseLocalDate(data.endDate)
+    
+    if (endDate <= startDate) {
       return NextResponse.json(
         { error: 'A data final deve ser posterior à data inicial' },
         { status: 400 }
@@ -101,8 +109,8 @@ export async function POST(request: NextRequest) {
         description: data.description,
         targetAmount: data.targetAmount,
         period: data.period,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
+        startDate,
+        endDate,
         userId: user.id,
       },
     })

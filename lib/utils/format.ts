@@ -60,6 +60,21 @@ export function formatNumber(value: number, decimals: number = 0): string {
   }).format(value)
 }
 
+/**
+ * Converte uma string de data no formato "YYYY-MM-DD" para um objeto Date
+ * usando o horário local (meia-noite no timezone local), evitando problemas de timezone
+ */
+export function parseLocalDate(dateString: string): Date {
+  // Se a string já incluir hora, usar diretamente
+  if (dateString.includes('T') || dateString.includes(' ')) {
+    return new Date(dateString)
+  }
+  
+  // Para formato "YYYY-MM-DD", criar data usando horário local
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day, 0, 0, 0, 0)
+}
+
 export function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
 }
