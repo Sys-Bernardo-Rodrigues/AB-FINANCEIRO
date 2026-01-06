@@ -6,11 +6,32 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatDate(date: string | Date): string {
+  // Converter para Date object e garantir que mantém o dia correto
+  let dateObj: Date
+  if (typeof date === 'string') {
+    // Se é formato YYYY-MM-DD, criar data local diretamente
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month, day] = date.split('-').map(Number)
+      dateObj = new Date(year, month - 1, day)
+    } else {
+      // Para ISO strings (com T ou Z), extrair componentes e criar data local
+      const isoDate = new Date(date)
+      // Criar nova data usando componentes locais para evitar mudança de dia
+      dateObj = new Date(
+        isoDate.getFullYear(),
+        isoDate.getMonth(),
+        isoDate.getDate()
+      )
+    }
+  } else {
+    dateObj = date
+  }
+  
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(date))
+  }).format(dateObj)
 }
 
 export function formatDateTime(date: string | Date): string {

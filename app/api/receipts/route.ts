@@ -92,12 +92,13 @@ export async function POST(request: NextRequest) {
       mimetype: file.mimetype,
     })
 
-    // Verificar se a transação existe e pertence ao usuário
+    // Verificar se a transação existe e pertence ao usuário ou grupo familiar
     if (transactionId) {
+      const familyUserIds = await getFamilyGroupUserIds()
       const transaction = await prisma.transaction.findFirst({
         where: {
           id: transactionId,
-          userId: user.id,
+          userId: { in: familyUserIds },
         },
       })
 

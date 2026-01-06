@@ -57,8 +57,8 @@ export default function SavingsGoalsPage() {
           description: formData.description || null,
           targetAmount: parseFloat(formData.targetAmount),
           period: 'CUSTOM',
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: formData.endDate,
+          startDate: formatDateForAPI(new Date().toISOString().split('T')[0]),
+          endDate: formatDateForAPI(formData.endDate),
         }),
       })
       setFormData({ name: '', description: '', targetAmount: '', endDate: '' })

@@ -71,12 +71,21 @@ export default function ScheduledTransactionsPage() {
     }
   }
 
-  const pendingTransactions = transactions.filter(
-    (t) => new Date(t.scheduledDate) >= new Date()
-  )
-  const pastTransactions = transactions.filter(
-    (t) => new Date(t.scheduledDate) < new Date()
-  )
+  // Comparar apenas a data (sem hora) para evitar problemas de timezone
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const pendingTransactions = transactions.filter((t) => {
+    const scheduledDate = new Date(t.scheduledDate)
+    scheduledDate.setHours(0, 0, 0, 0)
+    return scheduledDate >= today
+  })
+  
+  const pastTransactions = transactions.filter((t) => {
+    const scheduledDate = new Date(t.scheduledDate)
+    scheduledDate.setHours(0, 0, 0, 0)
+    return scheduledDate < today
+  })
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -116,7 +125,11 @@ export default function ScheduledTransactionsPage() {
               <h2 className="text-xl font-bold text-slate-800">Pendentes</h2>
               <div className="space-y-3">
                 {pendingTransactions.map((transaction) => {
-                  const isPast = new Date(transaction.scheduledDate) < new Date()
+                  const scheduledDate = new Date(transaction.scheduledDate)
+                  scheduledDate.setHours(0, 0, 0, 0)
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0)
+                  const isPast = scheduledDate < today
                   return (
                     <Card
                       key={transaction.id}
